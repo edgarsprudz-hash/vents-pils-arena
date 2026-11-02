@@ -1,22 +1,20 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 export async function POST(request: Request) {
  try {
   const body = await request.json();
   const email = typeof body.email === "string" ? body.email.trim() : "";
-  const subject = typeof body.subject === "string" ? body.subject.trim() : "";
+  const category = typeof body.subject === "string" ? body.subject.trim() : "";
   const message = typeof body.message === "string" ? body.message.trim() : "";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return NextResponse.json({error:"Enter a valid email address."},{status:400});
-  if (!["Account & login","Tournament registration","Team management","Technical issue","Report a player","Other"].includes(subject)) return NextResponse.json({error:"Choose a valid support category."},{status:400});
+  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || email.length > 254) return NextResponse.json({error:"Enter a valid email address."},{status:400});
+  if (!["Account & login","Tournament registration","Team management","Technical issue","Report a player","Other"].includes(category)) return NextResponse.json({error:"Choose a valid support category."},{status:400});
   if (message.length < 10 || message.length > 5000) return NextResponse.json({error:"Your message must be between 10 and 5000 characters."},{status:400});
-  const key = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM_EMAIL;
-  if (!key || !from) return NextResponse.json({error:"Support email is not configured yet. Please contact us through Discord."},{status:503});
-  const response = await fetch("https://api.resend.com/emails", {
-   method:"POST", headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},
-   body:JSON.stringify({from,to:["vcupsupport@gmail.com"],reply_to:email,subject:"[VENTSPILS ARENA SUPPORT] "+subject,text:"New support request\n\nFrom: "+email+"\nCategory: "+subject+"\n\nMessage:\n"+message})
-  });
-  if (!response.ok) return NextResponse.json({error:"We could not send your request right now. Please try again later."},{status:502});
-  return NextResponse.json({ok:true});
+  const url=process.env.NEXT_PUBLIC_SUPABASE_URL; const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if(!url||!key) return NextResponse.json({error:"Support is not configured."},{status:503});
+  const db=createClient(url,key,{auth:{persistSession:false}});
+  const {data,error}=await db.from("support_tickets").insert({email,category,message}).select("ticket_number").single();
+  if(error) return NextResponse.json({error:"Could not create ticket."},{status:500});
+  return NextResponse.json({ok:true,ticket_number:data.ticket_number});
  } catch { return NextResponse.json({error:"Invalid request."},{status:400}); }
 }
