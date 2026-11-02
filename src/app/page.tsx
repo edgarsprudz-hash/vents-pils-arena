@@ -37,7 +37,7 @@ export default function Home(){
       <div className="community-links">
         <a className="community-link" href="https://www.instagram.com/ventspilscs/" target="_blank" rel="noopener noreferrer"><span>01 / SOCIAL ↗</span><strong>INSTAGRAM</strong><small>@VENTSPILSCS · OPEN PROFILE</small></a>
         <a className="community-link" href="https://discord.gg/B8AebRKUJJ" target="_blank" rel="noopener noreferrer"><span>02 / COMMUNITY ↗</span><strong>DISCORD</strong><small>JOIN THE SERVER</small></a>
-        <div className="community-link"><span>03 / SUPPORT</span><strong>TECHNICAL SUPPORT</strong><small>SUPPORT CHANNEL COMING SOON</small></div>
+        <Link className="community-link" href="/support"><span>03 / SUPPORT ↗</span><strong>TECHNICAL SUPPORT</strong><small>OPEN SUPPORT CENTER</small></Link>
       </div>
     </section>
     <footer><span>VENTSPILS ARENA　·　© 2026</span><span>COMPETE • CONNECT • CONQUER</span><Link href="/rules">COMMUNITY RULES ↗</Link></footer>
