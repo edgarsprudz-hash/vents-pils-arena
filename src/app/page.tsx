@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import AuthNav from "./components/AuthNav";
-import { supabase } from "./lib/supabase";
+import { supabase } from "../lib/supabase";
 
 type Tournament={id:string;title:string;game:string;event_date:string|null;location:string;status:string;format:string|null};
 export default function Home(){
