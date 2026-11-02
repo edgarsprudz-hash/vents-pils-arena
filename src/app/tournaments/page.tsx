@@ -1,0 +1,1 @@
+import Link from "next/link";export default function Page(){return <main className="event"><Link href="/">← HOME</Link><h2>TOURNAMENTS<em>.</em></h2><h3>WINTER CUP · 05 DECEMBER 2026</h3><p>CS2 · Ventspils, Latvia. Confirmed format, venue, schedule and prize details will be announced by organizers.</p></main>}
