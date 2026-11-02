@@ -1,2 +1,30 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import ArenaSection from "../components/ArenaSection";
-export default function Page(){return <ArenaSection section="TOURNAMENTS" title="TOURNAMENTS" accent="." description="Find your next challenge. Follow upcoming competitions hosted by VENTSPILS ARENA." cards={[{tag:"UPCOMING EVENT · CS2",title:"WINTER CUP 2026",description:"05 December 2026 · Ventspils, Latvia. Format, venue, schedule and prize details will be announced by organizers.",href:"/tournaments/winter-cup",action:"VIEW EVENT",accent:"WC"}]}/>;}
+import { supabase } from "../../lib/supabase";
+
+type Tournament = { id:string; title:string; game:string; description:string; event_date:string|null; location:string; status:string; format:string };
+export default function Page(){
+  const [items,setItems]=useState<Tournament[]>([]);
+  const [loaded,setLoaded]=useState(false);
+  useEffect(()=>{
+    let active=true;
+    async function load(){
+      if(!supabase){setLoaded(true);return;}
+      const {data,error}=await supabase.from("tournaments").select("id,title,game,description,event_date,location,status,format").in("status",["REGISTRATION","LIVE"]).order("event_date",{ascending:true});
+      if(active){if(!error)setItems(data||[]);setLoaded(true);}
+    }
+    load();
+    return ()=>{active=false;};
+  },[]);
+  const cards=items.map((item)=>({
+    tag:item.game+" · "+item.status,
+    title:item.title,
+    description:[item.event_date?new Date(item.event_date).toLocaleString():"Date to be announced",item.location,item.format,item.description].filter(Boolean).join(" · "),
+    href:"/tournaments",
+    action:"TOURNAMENT DETAILS",
+    accent:item.game.toUpperCase().slice(0,3)
+  }));
+  return <ArenaSection section="TOURNAMENTS" title="TOURNAMENTS" accent="." description="Find your next challenge. Follow upcoming competitions hosted by VENTSPILS ARENA." cards={cards} emptyTitle={loaded?"NO OPEN TOURNAMENTS YET":"LOADING TOURNAMENTS"} emptyText={loaded?"Published tournaments will appear here when their status is set to REGISTRATION or LIVE in the admin panel.":"Loading events from the arena database."}/>;
+}
