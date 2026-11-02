@@ -9,7 +9,7 @@ type Tournament = {
   id: string; title: string; game: string; description: string;
   event_date: string | null; location: string; status: string; format: string;
 };
-const blank = { title: "", game: "CS2", description: "", event_date: "", location: "Ventspils, Latvia", status: "DRAFT", format: "TBD" };
+const blank = { title: "", game: "CS2", description: "", event_date: "", location: "Ventspils, Latvia", status: "DRAFT", format: "5v5" };
 
 export default function AdminTournamentsPage() {
   const router = useRouter();
@@ -73,7 +73,7 @@ export default function AdminTournamentsPage() {
         <label>TOURNAMENT NAME<input required value={form.title} onChange={e=>setForm({...form,title:e.target.value})} placeholder="e.g. VENTSPILS ARENA WINTER CUP"/></label>
         <div className="admin-form-grid">
           <label>GAME<input required value={form.game} onChange={e=>setForm({...form,game:e.target.value})}/></label>
-          <label>FORMAT<input value={form.format} onChange={e=>setForm({...form,format:e.target.value})} placeholder="TBD / 5v5"/></label>
+          <label>TEAM FORMAT<select required value={form.format} onChange={e=>setForm({...form,format:e.target.value})}><option value="2v2">2 vs 2 — 2 players</option><option value="3v3">3 vs 3 — 3 players</option><option value="5v5">5 vs 5 — 5 players</option></select></label>
           <label>DATE & TIME<input type="datetime-local" value={form.event_date} onChange={e=>setForm({...form,event_date:e.target.value})}/></label>
           <label>STATUS<select value={form.status} onChange={e=>setForm({...form,status:e.target.value})}><option value="DRAFT">DRAFT</option><option value="REGISTRATION">REGISTRATION</option><option value="LIVE">LIVE</option><option value="COMPLETED">COMPLETED</option><option value="CANCELLED">CANCELLED</option></select></label>
         </div>
