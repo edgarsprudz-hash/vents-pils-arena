@@ -63,7 +63,7 @@ export default function AdminPage() {
             <div className="admin-module-top"><span>{item.number} / 06</span><span className="admin-module-icon">{item.icon}</span></div>
             <h3>{item.title}</h3><p>{item.description}</p>
             <div className="admin-module-bottom"><span>{item.status}</span><i>↗</i></div>
-          </article>)}
+          </Link>)}
         </div>
         <div className="admin-footer-actions"><Link href="/account">← PERSONAL CABINET</Link><Link href="/tournaments">VIEW PUBLIC TOURNAMENTS ↗</Link></div>
       </div>
