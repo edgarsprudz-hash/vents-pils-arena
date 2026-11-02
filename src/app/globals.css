@@ -70,3 +70,19 @@
 .arena-section-bottom{display:flex;justify-content:space-between;gap:15px;margin-top:42px;padding-top:19px;border-top:1px solid #ffffff20}.arena-section-bottom a,.arena-section-bottom span{font-size:8px;font-weight:800;letter-spacing:1.4px;color:#9b9da4}.arena-section-bottom a:hover{color:#fff}.arena-section-bottom span b{color:#ef3038;padding:0 4px}
 @media(max-width:800px){.arena-section-page{padding:30px 5vw 55px}.arena-section-hero{margin:43px 0 38px}.arena-section-stamp{width:95px;height:95px}.arena-section-stamp span{font-size:48px}.arena-section-stamp small{font-size:5px}.arena-content-grid{grid-template-columns:1fr 1fr}.arena-content-card{min-height:260px;padding:17px}.arena-empty-state{flex-wrap:wrap}.arena-empty-state>a{margin-left:0}}
 @media(max-width:520px){.arena-section-hero{align-items:flex-start}.arena-section-stamp{width:65px;height:65px;margin:15px 7px 0 0}.arena-section-stamp span{font-size:34px}.arena-section-stamp small{display:none}.arena-section-copy h1{font-size:65px}.arena-content-grid{grid-template-columns:1fr}.arena-content-card{min-height:225px}.arena-section-bottom{flex-direction:column}.arena-empty-symbol{font-size:32px;padding-right:15px}}
+
+
+/* Functional admin tournament editor */
+.admin-editor{padding:22px 25px;border:1px solid #41434b;background:linear-gradient(120deg,#1a1c22,#101115);box-shadow:0 20px 55px #0006}
+.admin-form{display:grid;gap:15px}.admin-form label{display:grid;gap:8px;font-size:8px;font-weight:800;letter-spacing:1.5px;color:#aaa}
+.admin-form input,.admin-form select,.admin-form textarea{width:100%;min-height:44px;padding:12px 13px;border:1px solid #393b43;background:#0c0d11;color:#f4f4f2;font:12px Inter,Arial;outline:none;border-radius:0}
+.admin-form input:focus,.admin-form select:focus,.admin-form textarea:focus{border-color:#ef3038}
+.admin-form textarea{resize:vertical}.admin-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.admin-form-actions,.admin-row-actions{display:flex;gap:9px;flex-wrap:wrap}
+.admin-form-actions button,.admin-row-actions button{padding:13px 16px;border:1px solid #ef3038;background:#ef3038;color:white;font:800 8px Inter,Arial;letter-spacing:1px;cursor:pointer}
+.admin-form-actions button:disabled{opacity:.6;cursor:wait}.admin-form-actions .admin-secondary,.admin-row-actions button{background:#17191e;border-color:#45464d}
+.admin-row-actions .admin-delete{border-color:#85343a;color:#ff777d}
+.admin-feedback{font-size:10px;color:#ff777d;line-height:1.6;overflow-wrap:anywhere}
+.admin-list{display:grid;gap:9px}.admin-list-row{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:18px 20px;border:1px solid #35373e;background:linear-gradient(110deg,#1a1c22,#101115)}
+.admin-list-row small{font-size:8px;letter-spacing:1.4px;color:#ef656b}.admin-list-row h3{font:900 23px 'Barlow Condensed',Impact;margin:6px 0}.admin-list-row p{font-size:9px;color:#999;margin:0;line-height:1.6}.admin-empty{padding:30px;border:1px dashed #45464d;color:#999;font-size:11px;text-align:center}
+@media(max-width:600px){.admin-editor{padding:17px}.admin-form-grid{grid-template-columns:1fr}.admin-list-row{align-items:flex-start;flex-direction:column}.admin-row-actions{width:100%}}
