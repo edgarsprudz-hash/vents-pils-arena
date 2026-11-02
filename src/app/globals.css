@@ -182,3 +182,26 @@
 .team-status-badge{display:inline-flex;align-items:center;width:max-content;margin:10px 0 2px;padding:6px 10px;border-radius:3px;font-size:10px;font-weight:800;letter-spacing:.09em}
 .team-status-pending{color:#ffbd59;background:rgba(255,165,45,.13);border:1px solid rgba(255,165,45,.38)}
 .team-status-approved{color:#63d995;background:rgba(46,190,112,.13);border:1px solid rgba(46,190,112,.38)}
+
+
+/* Official PDF regulations */
+.rules-upload-hint{display:block;color:#92949c;font-size:9px;line-height:1.7;letter-spacing:.3px;margin-top:5px}
+.rules-current{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-top:24px;padding:22px;border:1px solid #343740;background:#111319}
+.rules-current small{color:#ef777d;font-size:8px;font-weight:800;letter-spacing:1.2px}
+.rules-current h2{font:900 25px 'Barlow Condensed',Impact;margin:10px 0 5px;color:#fff}
+.rules-current p{font-size:10px;color:#999;margin:0}
+.rules-current .admin-row-actions{display:flex;align-items:center;gap:12px}
+.rules-current .admin-row-actions a{color:#fff;font-size:9px;font-weight:900;letter-spacing:1px;text-decoration:none}
+.public-regulation{border:1px solid #343740;background:#111319;margin:28px 0 35px}
+.public-regulation-meta{display:flex;justify-content:space-between;gap:12px;padding:15px 20px;border-bottom:1px solid #30333b;color:#ef777d;font-size:8px;font-weight:900;letter-spacing:1.3px}
+.public-regulation-meta small{color:#92949c}
+.public-regulation-body{display:flex;align-items:center;gap:20px;padding:26px}
+.public-pdf-icon{display:grid;place-items:center;flex:0 0 64px;height:76px;background:#ef3038;color:#fff;font:900 22px 'Barlow Condensed',Impact;box-shadow:7px 7px 0 #ef303826}
+.public-regulation-body h2{font:900 29px 'Barlow Condensed',Impact;margin:0 0 8px;color:#fff}
+.public-regulation-body p{font-size:11px;line-height:1.7;color:#aaa;margin:0 0 7px}
+.public-regulation-body small{font-size:9px;color:#777}
+.public-regulation-actions{display:flex;gap:10px;flex-wrap:wrap;padding:0 26px 24px}
+.public-regulation-actions a{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 17px;background:#ef3038;color:#fff;text-decoration:none;font-size:8px;font-weight:900;letter-spacing:1.2px}
+.public-regulation-actions a+ a{background:transparent;border:1px solid #4b4e57}
+.public-regulation-viewer{display:block;width:100%;height:min(78vh,900px);border:0;border-top:1px solid #30333b;background:#fff}
+@media(max-width:650px){.rules-current{align-items:flex-start;flex-direction:column}.public-regulation-meta{flex-direction:column}.public-regulation-body{padding:20px;align-items:flex-start}.public-regulation-body h2{font-size:24px}.public-regulation-viewer{height:65vh}}
