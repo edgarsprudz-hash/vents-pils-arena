@@ -1,13 +1,42 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Inter:wght@400;600;800&display=swap');
 :root{--red:#ef3038;--bg:#08090b}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f4f4f2;font-family:Inter,Arial}a{color:inherit;text-decoration:none}header{height:76px;padding:0 6vw;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #292b31}header b{font-size:14px;letter-spacing:2px;color:var(--red)}header span{color:white}nav{display:flex;gap:24px}nav a,header>a{font-size:10px;font-weight:800;color:#bbb}.hero{min-height:620px;padding:100px 10vw;background:radial-gradient(ellipse at 80% 40%,#54191e,transparent 45%),#0b0c0f}.hero small,.event small{letter-spacing:2px;color:#aaa;font-weight:800}.hero h1{font:900 clamp(75px,12vw,145px)/.82 'Barlow Condensed',Impact;margin:30px 0}.hero em,.event em{color:var(--red);font-style:normal}.hero p{max-width:430px;color:#aaa;line-height:1.8}.button{display:inline-block;background:var(--red);padding:16px 20px;margin-top:20px;font-size:10px;font-weight:800}.hero label{display:block;margin-top:75px;color:#aaa;font-size:10px;letter-spacing:2px}.event{padding:70px 10vw;border-top:1px solid #222}.event h2{font:900 80px 'Barlow Condensed';margin:20px 0}.event p{color:#aaa;font-size:13px}footer{padding:30px 6vw;border-top:1px solid #292b31;color:#777;font-size:10px}@media(max-width:700px){header{height:auto;padding:20px 5vw;flex-wrap:wrap;gap:18px}nav{order:3;width:100%;overflow:auto}nav a{white-space:nowrap}.hero{padding:75px 7vw}.event{padding:55px 7vw}}
 /* Authentication forms */
-.event form{margin-top:28px}
-.event form label{display:grid;gap:9px;color:#c9c9c9;font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase}
-.event form input{width:100%;min-height:48px;padding:13px 15px;border:1px solid #34363d;border-radius:2px;background:#111317;color:#f4f4f2;font:14px Inter,Arial;outline:none;transition:border-color .18s,background .18s}
-.event form input:focus{border-color:var(--red);background:#15171c}
-.event form input::placeholder{color:#777}
-.event form button{min-height:48px;padding:14px 20px;border:0;border-radius:2px;background:var(--red);color:white;font:800 11px Inter,Arial;letter-spacing:1.4px;cursor:pointer}
-.event form button:hover{background:#d9232c}
-.event form button:disabled{opacity:.6;cursor:wait}
-.event form label input{margin-top:0}
-.event>p a{color:var(--red);font-weight:800}
+.event form{margin-top:28px}.event form label{display:grid;gap:9px;color:#c9c9c9;font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase}.event form input{width:100%;min-height:48px;padding:13px 15px;border:1px solid #34363d;border-radius:2px;background:#111317;color:#f4f4f2;font:14px Inter,Arial;outline:none;transition:border-color .18s,background .18s}.event form input:focus{border-color:var(--red);background:#15171c}.event form input::placeholder{color:#777}.event form button{min-height:48px;padding:14px 20px;border:0;border-radius:2px;background:var(--red);color:white;font:800 11px Inter,Arial;letter-spacing:1.4px;cursor:pointer}.event form button:hover{background:#d9232c}.event form button:disabled{opacity:.6;cursor:wait}.event form label input{margin-top:0}.event>p a{color:var(--red);font-weight:800}
+
+
+/* VENTSPILS ARENA — premium account UI */
+.account-menu{position:relative;display:flex;align-items:center}
+.account-trigger{display:flex;align-items:center;gap:11px;min-width:176px;padding:7px 12px;background:linear-gradient(135deg,#1b1d23,#101115);border:1px solid #41434b;color:#fff;cursor:pointer;text-align:left;transition:.2s}
+.account-trigger:hover{border-color:#ef3038;box-shadow:0 0 22px #ef303822}
+.account-avatar{width:34px;height:34px;display:grid;place-items:center;background:linear-gradient(145deg,#ff4a52,#9d111a);color:white;font:900 19px 'Barlow Condensed',Impact;box-shadow:inset 0 1px #ffffff55}
+.account-trigger-copy{display:grid;gap:4px}.account-trigger-copy strong{font-size:9px;letter-spacing:1.25px}.account-trigger-copy small{font-size:7px;letter-spacing:1.4px;color:#888}
+.account-chevron{margin-left:auto;color:#ef3038;font-size:15px}
+.account-dropdown{position:absolute;z-index:50;right:0;top:calc(100% + 10px);width:260px;padding:8px;background:#15161b;border:1px solid #45464d;box-shadow:0 18px 50px #000d}
+.dropdown-user{padding:14px 12px 17px;border-bottom:1px solid #303138;display:grid;gap:7px;overflow:hidden}.dropdown-label{font-size:8px;letter-spacing:1.6px;color:#85858b}.dropdown-user strong{font-size:11px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.account-dropdown a,.account-dropdown button{display:flex;justify-content:space-between;width:100%;padding:15px 12px;background:transparent;border:0;border-bottom:1px solid #292a30;color:#eee;text-align:left;font:800 9px Inter,Arial;letter-spacing:1.1px;cursor:pointer}.account-dropdown a:hover,.account-dropdown button:hover{color:#ff555d;background:#202126}.account-dropdown a span,.account-dropdown button span{color:#ef3038}
+.nav-signin{padding:12px 16px;border:1px solid #45474e;color:#fff!important;font-size:9px!important;letter-spacing:1px}.nav-signin span{color:#ef3038}
+/* Account page composition */
+.account-page{position:relative;isolation:isolate;min-height:calc(100vh - 76px);padding:45px 7vw 90px;overflow:hidden;background:radial-gradient(ellipse at 78% 12%,#4b151b 0,transparent 30%),radial-gradient(ellipse at 12% 80%,#17191f 0,transparent 35%),#090a0d}
+.account-page:before{content:"";position:absolute;z-index:-1;inset:0;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:54px 54px;mask-image:linear-gradient(to bottom,#0008,transparent 80%)}
+.account-shell{max-width:1120px;margin:0 auto}
+.account-breadcrumb{font-size:9px;letter-spacing:1.7px;color:#777}.account-breadcrumb a{color:#ddd}.account-breadcrumb span{padding:0 12px;color:#ef3038}
+.account-heading{display:flex;justify-content:space-between;align-items:end;margin:50px 0 32px}.account-kicker{font-size:9px;letter-spacing:2px;color:#aaa;font-weight:800}
+.account-heading h1{font:900 clamp(64px,9vw,112px)/.78 'Barlow Condensed',Impact;margin:17px 0 0;letter-spacing:-1px;text-shadow:0 8px 35px #000}.account-heading h1 em{font-style:normal;color:#ef3038}
+.account-mark{font:900 76px/.9 'Barlow Condensed',Impact;color:#ffffff10;-webkit-text-stroke:1px #ffffff35;padding:10px 20px;border:1px solid #ffffff20;transform:skew(-7deg)}
+.profile-panel{position:relative;overflow:hidden;border:1px solid #414148;background:linear-gradient(115deg,#1a1c22f5,#101115f5);box-shadow:0 24px 70px #0008}
+.profile-panel:after{content:"VA";position:absolute;right:28px;top:36px;font:900 190px/.8 'Barlow Condensed',Impact;color:#ffffff05;pointer-events:none}
+.profile-topline{position:relative;z-index:1;display:flex;justify-content:space-between;gap:15px;padding:18px 25px;border-bottom:1px solid #ffffff18;font-size:8px;font-weight:800;letter-spacing:1.8px;color:#999;background:#ffffff04}
+.profile-status{color:#c5c5c5}.profile-status i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#51d69a;margin-right:8px;box-shadow:0 0 12px #51d69a}
+.profile-main{position:relative;z-index:1;display:flex;align-items:center;gap:22px;padding:32px 28px}
+.profile-avatar{width:82px;height:82px;display:grid;place-items:center;background:linear-gradient(145deg,#fa424b,#75121a);border:1px solid #ff747a;color:white;font:900 46px 'Barlow Condensed',Impact;box-shadow:0 8px 30px #ef303833}
+.profile-identity h2{font:900 36px 'Barlow Condensed',Impact;margin:6px 0 4px;text-transform:uppercase;letter-spacing:.5px}.profile-identity p{font-size:11px;color:#999;margin:0}
+.profile-role{margin-left:auto;padding:10px 13px;border:1px solid #87323a;background:#ef303812;color:#ff6b72;font-size:8px;font-weight:900;letter-spacing:1.4px}
+.profile-details{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #ffffff18;padding:22px 28px 25px;gap:20px;background:#08090b55}
+.profile-details div{display:grid;gap:9px;padding-left:14px;border-left:2px solid #ef3038}.profile-details span{font-size:8px;letter-spacing:1.5px;color:#888}.profile-details strong{font-size:12px;letter-spacing:.5px;color:#f3f3f3}
+.account-actions{display:grid;grid-template-columns:1fr auto;align-items:center;gap:30px;margin-top:22px;padding:26px 28px;border:1px solid #303239;background:linear-gradient(100deg,#17191e,#101115)}
+.account-actions h3{font:900 31px 'Barlow Condensed',Impact;margin:8px 0 4px}.account-actions p{font-size:11px;color:#999;margin:0;max-width:360px;line-height:1.6}
+.account-action-links{display:flex;flex-wrap:wrap;gap:9px;justify-content:flex-end}
+.account-action-links a,.account-action-links button{padding:14px 15px;border:1px solid #45464d;background:#17191e;color:#eee;font:800 8px Inter,Arial;letter-spacing:1px;cursor:pointer;transition:.2s}
+.account-action-links a:first-child{background:#ef3038;border-color:#ef3038;color:#fff}.account-action-links a:hover,.account-action-links button:hover{border-color:#ef3038;color:#ff666d}
+.account-action-links span{color:inherit;margin-left:8px}.account-message,.account-loading{color:#aaa;font-size:12px}
+@media(max-width:720px){.account-page{padding:30px 5vw 60px}.account-heading{margin:38px 0 25px}.account-mark{font-size:48px}.profile-topline{padding:15px}.profile-main{padding:24px 18px;gap:14px;flex-wrap:wrap}.profile-avatar{width:62px;height:62px;font-size:35px}.profile-identity h2{font-size:28px}.profile-role{margin-left:0}.profile-details{grid-template-columns:1fr;padding:18px;gap:17px}.account-actions{grid-template-columns:1fr;padding:22px 18px}.account-action-links{justify-content:flex-start}.account-trigger{min-width:0}.account-trigger-copy small{display:none}}
