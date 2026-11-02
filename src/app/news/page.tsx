@@ -1,0 +1,1 @@
+import Link from "next/link";export default function Page(){return <main className="event"><Link href="/">← HOME</Link><h2>NEWS<em>.</em></h2><p>Updates from VENTSPILS ARENA will be published here.</p></main>}
