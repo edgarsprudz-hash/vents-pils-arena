@@ -1,0 +1,1 @@
+import Link from "next/link";export default function Page(){return <main className="event"><Link href="/">← HOME</Link><h2>RANKINGS<em>.</em></h2><p>Rankings will be based on verified tournament results.</p></main>}
