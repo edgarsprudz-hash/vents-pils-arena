@@ -1,1 +1,2 @@
-import Link from "next/link";export default function Page(){return <main className="event"><Link href="/">← HOME</Link><h2>RANKINGS<em>.</em></h2><p>Rankings will be based on verified tournament results.</p></main>}
+import ArenaSection from "../components/ArenaSection";
+export default function Page(){return <ArenaSection section="RANKINGS" title="RANKINGS" accent="." description="Track competitive progress and see who is climbing the arena leaderboard." emptyTitle="THE FIRST MATCH SETS THE TABLE." emptyText="Rankings will be published after verified tournament results. No player positions or points are invented."/>;}
