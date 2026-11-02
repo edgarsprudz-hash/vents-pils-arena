@@ -9,7 +9,6 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [nickname, setNickname] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [otp, setOtp] = useState("");
   const [legalConsent, setLegalConsent] = useState(false);
   const TERMS_VERSION = "2026-11-02";
   const PRIVACY_VERSION = "2026-11-02";
@@ -42,25 +41,8 @@ export default function RegisterPage() {
       window.location.href = "/";
     } else {
       setVerificationOpen(true);
-      setMessage("A 6-digit verification code has been sent to your email.");
+      setMessage("A confirmation link has been sent to your email.");
     }
-  }
-
-  async function handleVerify(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!supabase) return;
-    setBusy(true);
-    const { error } = await supabase.auth.verifyOtp({
-      email: email.trim(),
-      token: otp.trim(),
-      type: "email"
-    });
-    setBusy(false);
-    if (error) {
-      setMessage("Invalid or expired code. Check the code and try again.");
-      return;
-    }
-    window.location.href = "/";
   }
 
   async function resendCode() {
@@ -101,15 +83,11 @@ export default function RegisterPage() {
             </form>
           </>
         ) : (
-          <section role="dialog" aria-modal="true" aria-labelledby="verify-title" className="auth-verification">
+          <section role="status" aria-labelledby="verify-title" className="auth-verification">
             <span className="auth-card-kicker">ONE LAST STEP</span>
-            <h2 id="verify-title">VERIFY<br />YOUR EMAIL<em>.</em></h2>
-            <p className="auth-description">Enter the 6-digit code sent to <strong>{email}</strong>.</p>
-            <form onSubmit={handleVerify} className="auth-form">
-              <label>6-DIGIT VERIFICATION CODE<input required inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} value={otp} onChange={e=>setOtp(e.target.value.replace(/\\D/g,"").slice(0,6))} placeholder="000000" /></label>
-              <button type="submit" disabled={busy || otp.length !== 6}>{busy ? "VERIFYING..." : "VERIFY CODE"} <span>→</span></button>
-            </form>
-            <button type="button" className="auth-resend" onClick={resendCode} disabled={busy}>RESEND CODE</button>
+            <h2 id="verify-title">CHECK<br />YOUR EMAIL<em>.</em></h2>
+            <p className="auth-description">We sent a confirmation link to <strong>{email}</strong>. Open that email and click the link to activate your VENTSPILS ARENA account. You can return here after confirmation.</p>
+            <button type="button" className="auth-resend" onClick={resendCode} disabled={busy}>{busy ? "SENDING..." : "RESEND CONFIRMATION EMAIL"}</button>
           </section>
         )}
         {message && <p role="status" className="auth-message">{message}</p>}
