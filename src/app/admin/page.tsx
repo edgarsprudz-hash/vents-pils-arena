@@ -8,7 +8,7 @@ import { supabase } from "../../lib/supabase";
 type AdminProfile = { nickname: string | null; display_name: string | null; role: string };
 
 const modules = [
-  { number: "01", title: "TOURNAMENTS", description: "Create events, edit details and manage tournament status.", status: "NEXT MODULE", icon: "🏆" },
+  { number: "01", title: "TOURNAMENTS", description: "Create events, edit details and manage tournament status.", status: "ACTIVE", icon: "🏆", href: "/admin/tournaments" },
   { number: "02", title: "REGISTRATIONS", description: "Review team applications and manage participant entries.", status: "NEXT MODULE", icon: "📋" },
   { number: "03", title: "TEAMS & PLAYERS", description: "View teams, player profiles and membership.", status: "PLANNED", icon: "👥" },
   { number: "04", title: "RANKINGS", description: "Manage competitive points and leaderboard positions.", status: "PLANNED", icon: "📊" },
@@ -59,7 +59,7 @@ export default function AdminPage() {
         </section>
         <div className="admin-section-title"><div><span>MANAGEMENT</span><h2>ARENA MODULES</h2></div><small>CONTROL PANEL / 06 MODULES</small></div>
         <div className="admin-grid">
-          {modules.map((item) => <article className="admin-module" key={item.number}>
+          {modules.map((item) => <Link href={item.href || "/admin"} className="admin-module" key={item.number}>
             <div className="admin-module-top"><span>{item.number} / 06</span><span className="admin-module-icon">{item.icon}</span></div>
             <h3>{item.title}</h3><p>{item.description}</p>
             <div className="admin-module-bottom"><span>{item.status}</span><i>↗</i></div>
