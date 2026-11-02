@@ -10,6 +10,9 @@ export default function RegisterPage() {
   const [nickname, setNickname] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [otp, setOtp] = useState("");
+  const [legalConsent, setLegalConsent] = useState(false);
+  const TERMS_VERSION = "2026-11-02";
+  const PRIVACY_VERSION = "2026-11-02";
   const [verificationOpen, setVerificationOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -21,6 +24,7 @@ export default function RegisterPage() {
       setMessage("Supabase is not configured. Check the Vercel environment variables.");
       return;
     }
+    if (!legalConsent) { setMessage("You must accept the Terms & Conditions and Privacy Policy to create an account."); return; }
     if (password.length < 8) {
       setMessage("Password must contain at least 8 characters.");
       return;
@@ -29,7 +33,7 @@ export default function RegisterPage() {
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
-      options: { data: { nickname: nickname.trim(), display_name: displayName.trim() || nickname.trim() } }
+      options: { data: { nickname: nickname.trim(), display_name: displayName.trim() || nickname.trim(), legal_consent: true, terms_version: TERMS_VERSION, privacy_version: PRIVACY_VERSION } }
     });
     setBusy(false);
     if (error) {
@@ -92,7 +96,8 @@ export default function RegisterPage() {
               <label>Display name<input maxLength={40} value={displayName} onChange={e=>setDisplayName(e.target.value)} placeholder="How others will see you" /></label>
               <label>Email address<input required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="name@example.com" /></label>
               <label>Password<input required type="password" minLength={8} autoComplete="new-password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="At least 8 characters" /></label>
-              <button type="submit" disabled={busy}>{busy ? "CREATING ACCOUNT..." : "CREATE ACCOUNT"} <span>→</span></button>
+              <label className="auth-consent"><input type="checkbox" required checked={legalConsent} onChange={e=>setLegalConsent(e.target.checked)} /><span>I agree to the <Link href="/terms" target="_blank">Terms & Conditions</Link> and acknowledge the <Link href="/privacy" target="_blank">Privacy Policy</Link>. I confirm that I have read both documents.</span></label>
+              <button type="submit" disabled={busy || !legalConsent}>{busy ? "CREATING ACCOUNT..." : "CREATE ACCOUNT"} <span>→</span></button>
             </form>
           </>
         ) : (
