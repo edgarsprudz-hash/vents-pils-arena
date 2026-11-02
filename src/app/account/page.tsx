@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
+import SteamLink from "./steam-link";
+import MyMatches from "./matches";
 
-type Profile = { nickname: string | null; display_name: string | null; role: string };
+type Profile = { nickname: string | null; display_name: string | null; role: string; steam_id?: string | null };
 
 export default function AccountPage() {
   const router = useRouter();
@@ -20,7 +22,7 @@ export default function AccountPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.replace("/login"); return; }
       setEmail(session.user.email ?? "");
-      const { data } = await supabase.from("profiles").select("nickname, display_name, role").eq("id", session.user.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("nickname, display_name, role, steam_id").eq("id", session.user.id).maybeSingle();
       setProfile(data);
       setLoading(false);
     }
@@ -56,6 +58,9 @@ export default function AccountPage() {
           <div><span className="account-kicker">YOUR SPACE</span><h3>READY TO COMPETE?</h3><p>Your player profile and arena account are in one place.</p></div>
           <div className="account-action-links"><Link href="/tournaments">BROWSE TOURNAMENTS <span>↗</span></Link>{profile?.role === "SUPER_ADMIN" && <Link href="/admin">ADMIN CONTROL <span>↗</span></Link>}<button type="button" onClick={logout}>LOG OUT <span>↗</span></button></div>
         </section>
+        <SteamLink />
+        <MyMatches />
+        {profile?.steam_id && <p className="account-message">VERIFIED STEAM ID: {profile.steam_id}</p>}
         {message && <p className="account-message">{message}</p>}
       </div>
     </main>
