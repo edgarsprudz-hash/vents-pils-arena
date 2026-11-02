@@ -1,0 +1,1 @@
+import Link from "next/link";export default function Page(){return <main className="event"><Link href="/">← HOME</Link><h2>REGISTER<em>.</em></h2><p>Player registration will be enabled after authentication and database setup.</p></main>}
