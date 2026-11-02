@@ -35,8 +35,8 @@ export default function Home(){
     <section className="community-section">
       <div className="community-copy"><small>STAY IN THE LOOP</small><h2>FOLLOW THE<br/><em>ARENA.</em></h2><p>Tournament announcements, community updates and important event information — all in one place.</p></div>
       <div className="community-links">
-        <div className="community-link"><span>01 / SOCIAL</span><strong>INSTAGRAM</strong><small>LINK COMING SOON</small></div>
-        <div className="community-link"><span>02 / COMMUNITY</span><strong>DISCORD</strong><small>INVITE COMING SOON</small></div>
+        <a className="community-link" href="https://www.instagram.com/ventspilscs/" target="_blank" rel="noopener noreferrer"><span>01 / SOCIAL ↗</span><strong>INSTAGRAM</strong><small>@VENTSPILSCS · OPEN PROFILE</small></a>
+        <a className="community-link" href="https://discord.gg/B8AebRKUJJ" target="_blank" rel="noopener noreferrer"><span>02 / COMMUNITY ↗</span><strong>DISCORD</strong><small>JOIN THE SERVER</small></a>
         <div className="community-link"><span>03 / SUPPORT</span><strong>TECHNICAL SUPPORT</strong><small>SUPPORT CHANNEL COMING SOON</small></div>
       </div>
     </section>
