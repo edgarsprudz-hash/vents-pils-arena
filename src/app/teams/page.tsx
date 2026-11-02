@@ -1,1 +1,2 @@
-import Link from "next/link";export default function Page(){return <main className="event"><Link href="/">← HOME</Link><h2>TEAMS<em>.</em></h2><p>Team listings will appear here as teams join the arena.</p></main>}
+import ArenaSection from "../components/ArenaSection";
+export default function Page(){return <ArenaSection section="TEAMS" title="TEAMS" accent="." description="Meet the squads representing the Ventspils esports community." emptyTitle="THE ROSTER IS OPEN." emptyText="Team profiles will appear here as teams join VENTSPILS ARENA. Check back for the first line-ups."/>;}
