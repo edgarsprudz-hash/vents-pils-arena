@@ -1,0 +1,10 @@
+"use client";
+import Link from "next/link";
+import {useParams} from "next/navigation";
+import {useEffect,useState} from "react";
+import {supabase} from "../../../../lib/supabase";
+type Match={id:string;round_number:number;match_number:number;team_a:string|null;team_b:string|null;winner_team:string|null;status:string;cybershoke_url:string|null;map_name:string|null;scheduled_at:string|null};
+export default function MatchRoom(){const {matchId}=useParams<{matchId:string}>();const [match,setMatch]=useState<Match|null>(null),[error,setError]=useState(""),[loading,setLoading]=useState(true);
+ useEffect(()=>{async function load(){if(!supabase){setError("Sign in required.");setLoading(false);return;}const {data:{session}}=await supabase.auth.getSession();if(!session){setError("Sign in to view this room.");setLoading(false);return;}const r=await fetch("/api/matches/"+matchId,{headers:{authorization:"Bearer "+session.access_token},cache:"no-store"}),d=await r.json();if(!r.ok)setError(d.error||"Unable to load room.");else setMatch(d.match);setLoading(false);}load();},[matchId]);
+ return <main className="account-page"><div className="account-shell"><Link href="/account" className="detail-back">← PLAYER CABINET</Link>{loading?<p>LOADING PRIVATE ROOM...</p>:error?<p className="detail-message">{error}</p>:match&&<><span className="account-kicker">VENTSPILS ARENA / PRIVATE MATCH ROOM</span><h1>MATCH <em>ROOM.</em></h1><section className="profile-panel"><small>ROUND {match.round_number} / MATCH {match.match_number}</small><h2>{match.team_a||"TBD"} VS {match.team_b||"TBD"}</h2><p>STATUS: {match.status}</p>{match.map_name&&<p>MAP: {match.map_name}</p>}{match.scheduled_at&&<p>SCHEDULED: {new Date(match.scheduled_at).toLocaleString()}</p>}{match.cybershoke_url?<a className="detail-action" href={match.cybershoke_url} target="_blank" rel="noreferrer">JOIN CYBERSHOKE ROOM ↗</a>:<p>Room link will appear here when added by an admin.</p>}{match.winner_team&&<p>WINNER: {match.winner_team}</p>}</section></>}</div></main>;
+}
