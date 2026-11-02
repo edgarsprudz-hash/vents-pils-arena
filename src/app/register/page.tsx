@@ -67,29 +67,49 @@ export default function RegisterPage() {
     setMessage(error ? error.message : "A new verification code has been sent.");
   }
 
-  return <main className="event">
-    <Link href="/">← HOME</Link>
-    <h2>REGISTER<em>.</em></h2>
-    {!verificationOpen ? (
-      <form onSubmit={handleSubmit} style={{display:"grid",gap:14,maxWidth:420}}>
-        <label>Nickname<input required minLength={3} maxLength={24} value={nickname} onChange={e=>setNickname(e.target.value)} /></label>
-        <label>Display name<input maxLength={40} value={displayName} onChange={e=>setDisplayName(e.target.value)} /></label>
-        <label>Email<input required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} /></label>
-        <label>Password<input required type="password" minLength={8} autoComplete="new-password" value={password} onChange={e=>setPassword(e.target.value)} /></label>
-        <button type="submit" disabled={busy}>{busy ? "CREATING ACCOUNT..." : "CREATE ACCOUNT"}</button>
-      </form>
-    ) : (
-      <section role="dialog" aria-modal="true" aria-labelledby="verify-title" style={{maxWidth:420,padding:24,border:"1px solid #444",borderRadius:12,background:"#111"}}>
-        <h3 id="verify-title">VERIFY YOUR EMAIL</h3>
-        <p>Enter the 6-digit code sent to {email}.</p>
-        <form onSubmit={handleVerify} style={{display:"grid",gap:14}}>
-          <label>Verification code<input required inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} value={otp} onChange={e=>setOtp(e.target.value.replace(/\D/g,"").slice(0,6))} placeholder="000000" /></label>
-          <button type="submit" disabled={busy || otp.length !== 6}>{busy ? "VERIFYING..." : "VERIFY CODE"}</button>
-        </form>
-        <button type="button" onClick={resendCode} disabled={busy} style={{marginTop:12}}>RESEND CODE</button>
+  return <main className="auth-page">
+    <div className="auth-page-glow" aria-hidden="true" />
+    <div className="auth-layout">
+      <aside className="auth-visual">
+        <Link href="/" className="auth-back">← BACK TO ARENA</Link>
+        <div className="auth-visual-mark">VA<span>.</span></div>
+        <div className="auth-visual-copy">
+          <span className="auth-kicker"><i /> VENTSPILS ARENA / PLAYER ACCESS</span>
+          <h1>YOUR<br />GAME.<br /><em>YOUR</em><br />LEGACY.</h1>
+          <p>Join the community. Build your profile. Compete with the best.</p>
+        </div>
+        <div className="auth-visual-footer"><span>COMPETE • CONNECT • CONQUER</span><span>LATVIA / EST. 2026</span></div>
+      </aside>
+      <section className="auth-card">
+        <div className="auth-card-top"><span>ACCOUNT REGISTRATION</span><b>01 <i>/</i> 02</b></div>
+        {!verificationOpen ? (
+          <>
+            <span className="auth-card-kicker">CREATE YOUR PROFILE</span>
+            <h2>JOIN THE<br />ARENA<em>.</em></h2>
+            <p className="auth-description">Set up your player account to take part in the VENTSPILS ARENA community.</p>
+            <form onSubmit={handleSubmit} className="auth-form">
+              <label>Nickname<input required minLength={3} maxLength={24} value={nickname} onChange={e=>setNickname(e.target.value)} placeholder="Your gaming nickname" /></label>
+              <label>Display name<input maxLength={40} value={displayName} onChange={e=>setDisplayName(e.target.value)} placeholder="How others will see you" /></label>
+              <label>Email address<input required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="name@example.com" /></label>
+              <label>Password<input required type="password" minLength={8} autoComplete="new-password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="At least 8 characters" /></label>
+              <button type="submit" disabled={busy}>{busy ? "CREATING ACCOUNT..." : "CREATE ACCOUNT"} <span>→</span></button>
+            </form>
+          </>
+        ) : (
+          <section role="dialog" aria-modal="true" aria-labelledby="verify-title" className="auth-verification">
+            <span className="auth-card-kicker">ONE LAST STEP</span>
+            <h2 id="verify-title">VERIFY<br />YOUR EMAIL<em>.</em></h2>
+            <p className="auth-description">Enter the 6-digit code sent to <strong>{email}</strong>.</p>
+            <form onSubmit={handleVerify} className="auth-form">
+              <label>6-DIGIT VERIFICATION CODE<input required inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} value={otp} onChange={e=>setOtp(e.target.value.replace(/\\D/g,"").slice(0,6))} placeholder="000000" /></label>
+              <button type="submit" disabled={busy || otp.length !== 6}>{busy ? "VERIFYING..." : "VERIFY CODE"} <span>→</span></button>
+            </form>
+            <button type="button" className="auth-resend" onClick={resendCode} disabled={busy}>RESEND CODE</button>
+          </section>
+        )}
+        {message && <p role="status" className="auth-message">{message}</p>}
+        <p className="auth-switch">Already have an account? <Link href="/login">SIGN IN <span>→</span></Link></p>
       </section>
-    )}
-    {message && <p role="status">{message}</p>}
-    <p>Already registered? <Link href="/login">Sign in</Link></p>
+    </div>
   </main>;
 }
