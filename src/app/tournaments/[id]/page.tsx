@@ -18,7 +18,8 @@ export default function TournamentDetailsPage(){
   const [dbReady,setDbReady]=useState(true); const [showForm,setShowForm]=useState(false);
   const [teamName,setTeamName]=useState(""); const [captain,setCaptain]=useState("");
   const [players,setPlayers]=useState<Player[]>([{nickname:"",steam:""}]);
-  const [teams,setTeams]=useState<Team[]>([]);\n  const [bracket,setBracket]=useState<PublicMatch[]>([]);
+  const [teams,setTeams]=useState<Team[]>([]);
+  const [bracket,setBracket]=useState<PublicMatch[]>([]);
 
   async function loadTeams(id:string){
     if(!supabase)return;
