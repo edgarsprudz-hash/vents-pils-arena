@@ -1,0 +1,1 @@
+import Link from "next/link";export default function Page(){return <main className="event"><Link href="/tournaments">← TOURNAMENTS</Link><h2>WINTER <em>CUP.</em></h2><h3>05 DECEMBER 2026</h3><p>COUNTER-STRIKE 2 · VENTSPILS, LATVIA</p><p>Formats under consideration: 1v1, 2v2, 3v3 and 5v5. Details are not yet confirmed.</p></main>}
