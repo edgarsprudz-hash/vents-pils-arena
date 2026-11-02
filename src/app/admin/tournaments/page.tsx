@@ -84,7 +84,7 @@ export default function AdminTournamentsPage() {
       {message && <p className="admin-feedback">{message}</p>}
     </section>
     <div className="admin-section-title"><div><span>EVENT DATABASE</span><h2>ALL TOURNAMENTS</h2></div><small>{items.length} RECORDS</small></div>
-    <div className="admin-list">{items.map(item=><article className="admin-list-row" key={item.id}><div><small>{item.game} / {item.status}</small><h3>{item.title}</h3><p>{item.event_date ? new Date(item.event_date).toLocaleString() : "Date not set"} · {item.location} · {item.format}</p></div><div className="admin-row-actions"><button onClick={()=>edit(item)}>EDIT</button><button className="admin-delete" onClick={()=>remove(item.id)}>DELETE</button></div></article>)}{!items.length && <div className="admin-empty">No tournaments yet. Create the first event above.</div>}</div>
+    <div className="admin-list">{items.map(item=><article className="admin-list-row" key={item.id}><div><small>{item.game} / {item.status}</small><h3>{item.title}</h3><p>{item.event_date ? new Date(item.event_date).toLocaleString() : "Date not set"} · {item.location} · {item.format}</p></div><div className="admin-row-actions"><Link href={"/admin/tournaments/"+item.id+"/bracket"}>BRACKET</Link><button onClick={()=>edit(item)}>EDIT</button><button className="admin-delete" onClick={()=>remove(item.id)}>DELETE</button></div></article>)}{!items.length && <div className="admin-empty">No tournaments yet. Create the first event above.</div>}</div>
     <div className="admin-footer-actions"><Link href="/admin">← ADMIN CONTROL</Link><Link href="/tournaments">VIEW PUBLIC TOURNAMENTS ↗</Link></div>
   </div></main>;
 }
