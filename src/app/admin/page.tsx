@@ -14,6 +14,7 @@ const modules = [
   { number: "04", title: "RANKINGS", description: "Manage competitive points and leaderboard positions.", status: "PLANNED", icon: "📊" },
   { number: "05", title: "NEWSROOM", description: "Publish announcements and arena news.", status: "PLANNED", icon: "📰" },
   { number: "06", title: "USER ACCESS", description: "Review accounts and assign platform roles.", status: "PLANNED", icon: "🛡️" },
+  { number: "07", title: "SUPPORT INBOX", description: "Review player tickets and respond to support requests.", status: "ACTIVE", icon: "✉️", href: "/admin/support" },
 ];
 
 export default function AdminPage() {
@@ -57,7 +58,7 @@ export default function AdminPage() {
           <div><span>AUTHORIZED SESSION</span><h2>{profile?.display_name || profile?.nickname || "ADMINISTRATOR"}</h2><p>Full administrator access confirmed.</p></div>
           <div className="admin-live"><i/> SYSTEM ONLINE</div>
         </section>
-        <div className="admin-section-title"><div><span>MANAGEMENT</span><h2>ARENA MODULES</h2></div><small>CONTROL PANEL / 06 MODULES</small></div>
+        <div className="admin-section-title"><div><span>MANAGEMENT</span><h2>ARENA MODULES</h2></div><small>CONTROL PANEL / 07 MODULES</small></div>
         <div className="admin-grid">
           {modules.map((item) => <Link href={item.href || "/admin"} className="admin-module" key={item.number}>
             <div className="admin-module-top"><span>{item.number} / 06</span><span className="admin-module-icon">{item.icon}</span></div>
