@@ -22,8 +22,8 @@ export default function Page(){
     tag:item.game+" · "+item.status,
     title:item.title,
     description:[item.event_date?new Date(item.event_date).toLocaleString():"Date to be announced",item.location,item.format,item.description].filter(Boolean).join(" · "),
-    href:"/tournaments",
-    action:"TOURNAMENT DETAILS",
+    href:"/tournaments/"+item.id,
+    action:"VIEW & REGISTER",
     accent:item.game.toUpperCase().slice(0,3)
   }));
   return <ArenaSection section="TOURNAMENTS" title="TOURNAMENTS" accent="." description="Find your next challenge. Follow upcoming competitions hosted by VENTSPILS ARENA." cards={cards} emptyTitle={loaded?"NO OPEN TOURNAMENTS YET":"LOADING TOURNAMENTS"} emptyText={loaded?"Published tournaments will appear here when their status is set to REGISTRATION or LIVE in the admin panel.":"Loading events from the arena database."}/>;
