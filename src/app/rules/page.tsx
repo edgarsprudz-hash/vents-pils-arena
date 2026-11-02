@@ -1,1 +1,2 @@
-import Link from "next/link";export default function Page(){return <main className="event"><Link href="/">← HOME</Link><h2>RULES<em>.</em></h2><p>Official tournament rules will be published before registration opens.</p></main>}
+import ArenaSection from "../components/ArenaSection";
+export default function Page(){return <ArenaSection section="RULES" title="ARENA RULES" accent="." description="Fair play comes first. Official competition rules and participation requirements will be published here." emptyTitle="FAIR PLAY STARTS HERE." emptyText="The official rules will be published before tournament registration opens. Until then, no unconfirmed rules apply."/>;}
