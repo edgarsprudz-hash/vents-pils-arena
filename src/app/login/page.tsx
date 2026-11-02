@@ -1,0 +1,1 @@
+import Link from "next/link";export default function Page(){return <main className="event"><Link href="/">← HOME</Link><h2>SIGN IN<em>.</em></h2><p>Authentication will be enabled after secure account services are configured.</p></main>}
