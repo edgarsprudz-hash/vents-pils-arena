@@ -7,7 +7,7 @@ import { supabase } from "../../../lib/supabase";
 
 type Tournament = { id:string; title:string; game:string; description:string; event_date:string|null; location:string; status:string; format:string };
 type Player = { nickname:string; steam:string };
-type Team = { id:string; team_name:string; captain_name:string; roster:Player[]; created_at:string };
+type Team = { id:string; team_name:string; captain_name:string; roster:Player[]; created_at:string; status:string };
 
 export default function TournamentDetailsPage(){
   const params=useParams<{id:string}>(); const router=useRouter();
@@ -22,7 +22,7 @@ export default function TournamentDetailsPage(){
   async function loadTeams(id:string){
     if(!supabase)return;
     const {data,error}=await supabase.from("tournament_registrations")
-      .select("id,team_name,captain_name,roster,created_at").eq("tournament_id",id).eq("status","REGISTERED").order("created_at");
+      .select("id,team_name,captain_name,roster,created_at,status").eq("tournament_id",id).in("status",["PENDING","REGISTERED"]).order("created_at");
     if(!error)setTeams((data||[]) as Team[]);
   }
   useEffect(()=>{ let active=true; async function load(){
@@ -35,10 +35,10 @@ export default function TournamentDetailsPage(){
     if(error||!data){setMessage(error?.message||"Tournament not found.");setLoading(false);return;}
     setItem(data);setSignedIn(!!session);
     if(session){
-      const {data:reg,error:regError}=await supabase.from("tournament_registrations").select("id,status").eq("tournament_id",params.id).eq("user_id",session.user.id).maybeSingle();
+      const {data:reg,error:regError}=await supabase.from("tournament_registrations").select("id,status").eq("tournament_id",params.id).eq("user_id",session.user.id).in("status",["PENDING","REGISTERED"]).maybeSingle();
       if(!active)return;
       if(regError){setDbReady(false);setMessage("The team registration database migration must be installed.");}
-      else setRegistered(reg?.status==="REGISTERED");
+      else setRegistered(!!reg);
     }
     await loadTeams(params.id); if(active)setLoading(false);
   } load(); return()=>{active=false;}; },[params.id]);
@@ -54,7 +54,7 @@ export default function TournamentDetailsPage(){
     if(clean.some(p=>!p.nickname)){setMessage("Enter a nickname for every player.");return;}
     setBusy(true);setMessage("");
     const {error}=await supabase.from("tournament_registrations").insert({
-      tournament_id:item.id,user_id:session.user.id,status:"REGISTERED",
+      tournament_id:item.id,user_id:session.user.id,status:"PENDING",
       team_name:teamName.trim(),captain_name:captain.trim(),roster:clean
     });
     if(error){setMessage(error.code==="23505"?"Your account already has a registration for this tournament.":error.message);}
@@ -80,13 +80,13 @@ export default function TournamentDetailsPage(){
     <section className="detail-content"><div className="detail-info"><div className="detail-section-label">EVENT INFORMATION <i/></div><div className="detail-facts">
       <div><small>DATE & TIME</small><strong>{date}</strong></div><div><small>LOCATION</small><strong>{item.location||"TO BE ANNOUNCED"}</strong></div><div><small>FORMAT</small><strong>{item.format||"TO BE ANNOUNCED"}</strong></div><div><small>GAME</small><strong>{item.game}</strong></div>
     </div></div><aside className="detail-register"><small>YOUR NEXT CHALLENGE</small><h2>{registered?"YOU'RE IN":open?"JOIN THE ARENA":"REGISTRATION CLOSED"}<span>.</span></h2>
-      <p>{registered?"Your team registration is confirmed.":open?"Register your team and submit your player roster.":"Registration is not currently available for this event."}</p>
+      <p>{registered?"Your team registration is awaiting administrator approval.":open?"Register your team and submit your player roster.":"Registration is not currently available for this event."}</p>
       {open&&(registered?<button className="detail-action detail-cancel" disabled={busy||!dbReady} onClick={cancel}>{busy?"PLEASE WAIT...":"CANCEL REGISTRATION"}</button>:signedIn?<button className="detail-action" disabled={busy||!dbReady} onClick={()=>setShowForm(true)}>REGISTER YOUR TEAM ↗</button>:<Link className="detail-action" href="/login">SIGN IN TO REGISTER ↗</Link>)}
-      {registered&&<div className="detail-success">✓ REGISTRATION CONFIRMED</div>}{message&&<p className="detail-message" role="status">{message}</p>}
+      {registered&&<div className="detail-success">◷ AWAITING APPROVAL</div>}{message&&<p className="detail-message" role="status">{message}</p>}
       {!dbReady&&<span className="detail-note">DATABASE SETUP REQUIRED</span>}
     </aside></section>
     <section className="team-roster-section"><div className="detail-section-label">COMPETING TEAMS <i/></div><div className="team-roster-heading"><h2>REGISTERED <em>TEAMS.</em></h2><span>{teams.length.toString().padStart(2,"0")} TEAMS</span></div>
-      {teams.length===0?<p className="team-empty">No teams have registered yet. Be the first to join the competition.</p>:<div className="team-grid">{teams.map((team,index)=><article className="team-card" key={team.id}><div className="team-card-top"><span>TEAM / {(index+1).toString().padStart(2,"0")}</span><b>{team.roster?.length||0} PLAYERS</b></div><h3>{team.team_name||"Unnamed team"}</h3><p className="team-captain">CAPTAIN · {team.captain_name||"—"}</p><div className="team-player-list">{(team.roster||[]).map((p,i)=><div key={i}><span>{String(i+1).padStart(2,"0")}</span><strong>{p.nickname}</strong>{p.steam&&<a href={p.steam.startsWith("http")?p.steam:"https://steamcommunity.com/profiles/"+p.steam} target="_blank" rel="noreferrer">STEAM ↗</a>}</div>)}</div></article>)}</div>}
+      {teams.length===0?<p className="team-empty">No teams have registered yet. Be the first to join the competition.</p>:<div className="team-grid">{teams.map((team,index)=><article className="team-card" key={team.id}><div className="team-card-top"><span>TEAM / {(index+1).toString().padStart(2,"0")}</span><b>{team.roster?.length||0} PLAYERS</b></div><div className={"team-status-badge "+(team.status==="REGISTERED"?"team-status-approved":"team-status-pending")}>{team.status==="REGISTERED"?"CONFIRMED":"AWAITING APPROVAL"}</div><h3>{team.team_name||"Unnamed team"}</h3><p className="team-captain">CAPTAIN · {team.captain_name||"—"}</p><div className="team-player-list">{(team.roster||[]).map((p,i)=><div key={i}><span>{String(i+1).padStart(2,"0")}</span><strong>{p.nickname}</strong>{p.steam&&<a href={p.steam.startsWith("http")?p.steam:"https://steamcommunity.com/profiles/"+p.steam} target="_blank" rel="noreferrer">STEAM ↗</a>}</div>)}</div></article>)}</div>}
     </section>
     <div className="detail-bottom"><span>VENTSPILS ARENA <b>•</b> COMPETE • CONNECT • CONQUER</span><span>LATVIA / 2026</span></div>
     {showForm&&<div className="team-modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setShowForm(false);}}><section className="team-modal" role="dialog" aria-modal="true" aria-labelledby="team-form-title"><button className="team-modal-close" onClick={()=>setShowForm(false)} aria-label="Close">×</button><span className="detail-section-label">VENTSPILS ARENA / ENTRY FORM</span><h2 id="team-form-title">TEAM <em>REGISTRATION.</em></h2><p className="team-modal-intro">This is a {item.format} tournament. You can register up to {maxPlayers} players. Your team will appear here after submission.</p>
