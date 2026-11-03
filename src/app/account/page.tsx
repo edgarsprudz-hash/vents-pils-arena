@@ -58,9 +58,8 @@ export default function AccountPage() {
           <div><span className="account-kicker">YOUR SPACE</span><h3>READY TO COMPETE?</h3><p>Your player profile and arena account are in one place.</p></div>
           <div className="account-action-links"><Link href="/tournaments">BROWSE TOURNAMENTS <span>↗</span></Link>{profile?.role === "SUPER_ADMIN" && <Link href="/admin">ADMIN CONTROL <span>↗</span></Link>}<button type="button" onClick={logout}>LOG OUT <span>↗</span></button></div>
         </section>
-        <SteamLink />
+        <SteamLink steamId={profile?.steam_id} />
         <MyMatches />
-        {profile?.steam_id && <p className="account-message">VERIFIED STEAM ID: {profile.steam_id}</p>}
         {message && <p className="account-message">{message}</p>}
       </div>
     </main>
