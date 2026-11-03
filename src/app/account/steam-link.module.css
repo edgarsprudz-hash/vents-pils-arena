@@ -1,0 +1,22 @@
+.card{position:relative;margin-top:18px;overflow:hidden;border:1px solid #383a43;background:linear-gradient(115deg,#1a1c22f5,#101115f5);box-shadow:0 18px 50px #0007}
+.card:after{content:"STEAM";position:absolute;right:20px;bottom:-24px;font:900 92px/.9 'Barlow Condensed',Impact;color:#ffffff05;pointer-events:none}
+.topline{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 21px;border-bottom:1px solid #ffffff16;background:#ffffff04}
+.eyebrow,.label{font-size:8px;font-weight:900;letter-spacing:1.8px;color:#92949c}
+.connected,.pending{display:inline-flex;align-items:center;gap:7px;font-size:7px;font-weight:900;letter-spacing:1.2px}
+.connected{color:#75dfa4}.pending{color:#ef777d}
+.connected i,.pending i{width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor}
+.content{position:relative;z-index:1;display:flex;align-items:center;gap:19px;padding:24px 21px}
+.steamMark{flex:0 0 54px;width:54px;height:54px;display:grid;place-items:center;border:1px solid #ef303866;background:linear-gradient(145deg,#ef303829,#ef303808);color:#ff5961;font:900 32px 'Barlow Condensed',Impact;box-shadow:inset 0 0 22px #ef303811}
+.copy{min-width:0;flex:1}.copy h3{margin:6px 0 5px;color:#fff;font:900 25px/1 'Barlow Condensed',Impact;letter-spacing:.5px}.copy p{max-width:550px;margin:0;color:#999;font-size:10px;line-height:1.7}
+.button{display:inline-flex;align-items:center;gap:12px;min-height:48px;padding:0 17px;border:1px solid #ff535b;background:linear-gradient(110deg,#ef3038,#b71924);color:#fff;font:900 8px Inter,Arial;letter-spacing:1.1px;white-space:nowrap;cursor:pointer;box-shadow:0 8px 25px #ef30382b;transition:transform .2s,box-shadow .2s,background .2s}
+.button:hover{transform:translateY(-2px);background:linear-gradient(110deg,#ff424a,#d01d29);box-shadow:0 12px 30px #ef30384d}
+.button:disabled{opacity:.6;cursor:wait;transform:none}
+.buttonIcon{display:grid;place-items:center;width:25px;height:25px;border:1px solid #ffffff55;background:#ffffff18;font:900 17px 'Barlow Condensed',Impact}
+.arrow{font-size:15px}
+.identity{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.verified{padding:6px 9px;border:1px solid #3b9b6b66;background:#2a9d5b18;color:#7be4a7;font-size:7px;font-weight:900;letter-spacing:1px}
+.steamId{color:#858891;font-size:8px;letter-spacing:.5px}
+.identity a{color:#ff7279;font-size:8px;font-weight:900;letter-spacing:1px}
+.identity a:hover{color:#fff}
+.error{position:relative;z-index:1;margin:0;padding:0 21px 17px;color:#ff8d93;font-size:10px}
+@media(max-width:700px){.topline{align-items:flex-start;flex-direction:column}.content{align-items:flex-start;flex-wrap:wrap;padding:19px}.copy{flex-basis:calc(100% - 75px)}.button{width:100%;justify-content:center}.identity{gap:8px}.copy h3{font-size:22px}}
