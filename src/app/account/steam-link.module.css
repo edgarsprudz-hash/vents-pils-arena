@@ -20,3 +20,8 @@
 .identity a:hover{color:#fff}
 .error{position:relative;z-index:1;margin:0;padding:0 21px 17px;color:#ff8d93;font-size:10px}
 @media(max-width:700px){.topline{align-items:flex-start;flex-direction:column}.content{align-items:flex-start;flex-wrap:wrap;padding:19px}.copy{flex-basis:calc(100% - 75px)}.button{width:100%;justify-content:center}.identity{gap:8px}.copy h3{font-size:22px}}
+
+/* Keep the Steam card visually separated from the next account section. */
+.card{margin-bottom:30px;padding-bottom:8px}
+.content{padding-bottom:30px}
+.error{padding-bottom:22px}
