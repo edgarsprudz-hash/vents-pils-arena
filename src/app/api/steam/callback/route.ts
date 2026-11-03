@@ -9,10 +9,15 @@ export async function GET(req:NextRequest){
  if(!sig||sig.length!==expected.length||!timingSafeEqual(Buffer.from(sig),Buffer.from(expected)))return fail("Invalid verification state.");
  let state:{uid:string;exp:number};try{state=JSON.parse(Buffer.from(payload,"base64url").toString());}catch{return fail("Invalid state.");}
  if(state.exp<Date.now())return fail("Verification expired.");
+ const callback=new URL("/api/steam/callback",req.url).toString();
+ const returnedTo=req.nextUrl.searchParams.get("openid.return_to")||"";
+ const claimed=req.nextUrl.searchParams.get("openid.claimed_id")||"";
+ const identity=req.nextUrl.searchParams.get("openid.identity")||"";
+ if(returnedTo!==callback||!claimed.startsWith("https://steamcommunity.com/openid/id/")||identity!==claimed)return fail("Steam identity verification mismatch.");
  const params=new URLSearchParams(req.nextUrl.searchParams);params.set("openid.mode","check_authentication");
  const check=await fetch("https://steamcommunity.com/openid/login",{method:"POST",headers:{"content-type":"application/x-www-form-urlencoded"},body:params.toString(),cache:"no-store"});
  if(!check.ok||!(await check.text()).includes("is_valid:true"))return fail("Steam verification failed.");
- const claimed=req.nextUrl.searchParams.get("openid.claimed_id")||"",id=claimed.substring(claimed.lastIndexOf("/")+1);
+ const id=claimed.substring(claimed.lastIndexOf("/")+1);
  if(!/^[0-9]{17}$/.test(id))return fail("Invalid Steam ID.");
  const db=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.SUPABASE_SERVICE_ROLE_KEY!);
  const {data:old}=await db.from("profiles").select("id").eq("steam_id",id).maybeSingle();if(old&&old.id!==state.uid)return fail("Steam account already linked.");
