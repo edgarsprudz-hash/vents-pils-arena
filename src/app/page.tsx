@@ -20,7 +20,7 @@ export default function Home(){
     load();return()=>{active=false;};
   },[]);
   return <main>
-    <header><b>V <span>VENTSPILS ARENA</span></b><nav><Link href="/tournaments">TOURNAMENTS</Link><Link href="/teams">TEAMS</Link><Link href="/rankings">RANKINGS</Link><Link href="/news">NEWS</Link><Link href="/rules">RULES</Link></nav><AuthNav /></header>
+    <header><b>V <span>VENTSPILS ARENA</span></b><nav><Link href="/tournaments">TOURNAMENTS</Link><Link href="/teams">TEAMS</Link><Link href="/rankings">RANKINGS</Link><Link href="/news">NEWS</Link><Link href="/rules">RULES</Link><Link href="/complaints">COMPLAINTS</Link></nav><AuthNav /></header>
     <section className="hero"><small>● VENTSPILS, LATVIA · EST. 2026</small><h1>THE NEXT<br/><em>ROUND</em><br/>STARTS HERE.</h1><p>A home for competitive Counter-Strike. Find your team, enter the arena and prove yourself.</p><Link className="button" href="/tournaments">EXPLORE TOURNAMENTS ↗</Link><label>COMPETE　•　CONNECT　•　CONQUER</label></section>
     <section className="upcoming-section">
       <div className="upcoming-heading"><div><small>THE COMPETITIVE CALENDAR</small><h2>UPCOMING <em>TOURNAMENTS.</em></h2><p>Find your next match. Choose an event and secure your place.</p></div><Link href="/tournaments">ALL TOURNAMENTS ↗</Link></div>
@@ -37,7 +37,7 @@ export default function Home(){
       <div className="community-links">
         <a className="community-link" href="https://www.instagram.com/ventspilscs/" target="_blank" rel="noopener noreferrer"><span>01 / SOCIAL ↗</span><strong>INSTAGRAM</strong><small>@VENTSPILSCS · OPEN PROFILE</small></a>
         <a className="community-link" href="https://discord.gg/B8AebRKUJJ" target="_blank" rel="noopener noreferrer"><span>02 / COMMUNITY ↗</span><strong>DISCORD</strong><small>JOIN THE SERVER</small></a>
-        <Link className="community-link" href="/support"><span>03 / SUPPORT ↗</span><strong>TECHNICAL SUPPORT</strong><small>OPEN SUPPORT CENTER</small></Link>
+        <Link className="community-link" href="/support"><span>03 / SUPPORT ↗</span><strong>TECHNICAL SUPPORT</strong><small>OPEN SUPPORT CENTER</small></Link><Link className="community-link" href="/complaints"><span>04 / PLAYER SERVICES ↗</span><strong>COMPLAINT CENTER</strong><small>SUBMIT OR TRACK A COMPLAINT</small></Link>
       </div>
     </section>
     <footer><span>VENTSPILS ARENA　·　© 2026</span><span>COMPETE • CONNECT • CONQUER</span><Link href="/rules">COMMUNITY RULES ↗</Link></footer>
