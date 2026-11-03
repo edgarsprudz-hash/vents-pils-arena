@@ -26,6 +26,18 @@ type Match = {
   status: string;
 };
 
+type Registration = {
+  tournament_id: string;
+  user_id: string;
+  status: string;
+  roster: { nickname?: string; steam?: string }[] | null;
+};
+
+function steamIdFrom(value: string) {
+  const match = value.match(/(?:^|\D)(\d{17})(?:\D|$)/);
+  return match?.[1] || value.trim();
+}
+
 export default function MyMatches() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [items, setItems] = useState<Match[]>([]);
@@ -38,13 +50,29 @@ export default function MyMatches() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { setBusy(false); return; }
 
-      const { data: registrations } = await supabase
-        .from("tournament_registrations")
-        .select("tournament_id, status")
-        .eq("user_id", session.user.id)
-        .neq("status", "CANCELLED");
+      const [{ data: profile }, { data: ownRegistrations }, { data: publicRegistrations }] = await Promise.all([
+        supabase.from("profiles").select("steam_id").eq("id", session.user.id).maybeSingle(),
+        supabase.from("tournament_registrations")
+          .select("tournament_id,user_id,status,roster")
+          .eq("user_id", session.user.id)
+          .in("status", ["PENDING", "REGISTERED"]),
+        // Publicly confirmed team entries let a rostered player find a team
+        // even when another account submitted the registration.
+        supabase.from("tournament_registrations")
+          .select("tournament_id,user_id,status,roster")
+          .eq("status", "REGISTERED"),
+      ]);
 
-      const tournamentIds = [...new Set((registrations || []).map((r) => r.tournament_id))];
+      const mySteamId = profile?.steam_id ? steamIdFrom(profile.steam_id) : "";
+      const combined = [...(ownRegistrations || []), ...(publicRegistrations || [])] as Registration[];
+      const matching = combined.filter((registration) => {
+        if (registration.user_id === session.user.id) return true;
+        return !!mySteamId && (registration.roster || []).some((player) =>
+          typeof player.steam === "string" && steamIdFrom(player.steam) === mySteamId
+        );
+      });
+      const tournamentIds = [...new Set(matching.map((r) => r.tournament_id))];
+
       if (tournamentIds.length) {
         const { data } = await supabase
           .from("tournaments")
@@ -52,21 +80,23 @@ export default function MyMatches() {
           .in("id", tournamentIds)
           .order("event_date", { ascending: true, nullsFirst: false });
         if (active) setTournaments((data || []) as Tournament[]);
+      }
 
-        const { data: members } = await supabase
-          .from("tournament_players")
-          .select("tournament_id")
-          .eq("user_id", session.user.id);
-        const matchIds = [...new Set((members || []).map((m) => m.tournament_id))];
-        if (matchIds.length) {
-          const { data: matches } = await supabase
-            .from("tournament_matches")
-            .select("id,tournament_id,round_number,match_number,team_a,team_b,winner_team,status")
-            .in("tournament_id", matchIds)
-            .order("round_number")
-            .order("match_number");
-          if (active) setItems((matches || []) as Match[]);
-        }
+      // Load matches independently of registrations, so existing player
+      // match records remain visible even if a registration row is absent.
+      const { data: members } = await supabase
+        .from("tournament_players")
+        .select("tournament_id")
+        .eq("user_id", session.user.id);
+      const matchIds = [...new Set((members || []).map((m) => m.tournament_id))];
+      if (matchIds.length) {
+        const { data: matches } = await supabase
+          .from("tournament_matches")
+          .select("id,tournament_id,round_number,match_number,team_a,team_b,winner_team,status")
+          .in("tournament_id", matchIds)
+          .order("round_number")
+          .order("match_number");
+        if (active) setItems((matches || []) as Match[]);
       }
       if (active) setBusy(false);
     }
