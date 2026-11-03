@@ -1,0 +1,34 @@
+.section{margin-top:34px;padding:28px;border:1px solid #292b31;background:linear-gradient(135deg,#15171c,#0d0e11);position:relative;overflow:hidden}
+.kicker{display:flex;align-items:center;gap:10px;color:#999;font-size:9px;font-weight:800;letter-spacing:2px}
+.kicker i{display:block;width:24px;height:2px;background:#ef3038}
+.headingRow{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:12px 0 22px}
+.headingRow h2{margin:0;color:#f4f4f4;font-size:clamp(24px,3vw,34px);font-weight:950;letter-spacing:-1.5px}
+.headingRow h2 em{color:#ef3038;font-style:normal}
+.count{padding:8px 10px;border:1px solid #493035;color:#ff7379;font-size:9px;font-weight:900;letter-spacing:1px;white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.card{min-width:0;padding:20px;border:1px solid #303239;background:#111317;transition:border-color .2s,transform .2s}
+.card:hover{border-color:#a92a31;transform:translateY(-2px)}
+.cardTop{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#999;font-size:9px;font-weight:800;letter-spacing:1px}
+.cardTop b{padding:6px 8px;background:#32171b;color:#ff777d;font-size:8px;letter-spacing:.8px}
+.card h3{margin:18px 0;color:#fff;font-size:21px;line-height:1.15;font-weight:900}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:13px 0;border-top:1px solid #292b31;border-bottom:1px solid #292b31}
+.meta span{color:#ddd;font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+.meta i{display:block;margin-bottom:4px;color:#777;font-size:8px;font-style:normal;font-weight:800;letter-spacing:1px}
+.cardBottom{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px;flex-wrap:wrap}
+.cardBottom span{display:flex;align-items:center;gap:7px;color:#b7b7b7;font-size:8px;font-weight:800;letter-spacing:.8px}
+.cardBottom span i{width:6px;height:6px;border-radius:50%;background:#ef3038;box-shadow:0 0 10px #ef3038}
+.cardBottom a,.emptyCard a{color:#ff686f;font-size:9px;font-weight:900;letter-spacing:.8px;text-decoration:none}
+.cardBottom a:hover,.emptyCard a:hover{color:#fff}
+.empty{color:#999;font-size:12px;line-height:1.6}
+.emptyCard{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:20px;border:1px dashed #393b42;background:#111317}
+.emptyMark{display:grid;place-items:center;width:48px;height:48px;background:#32171b;color:#ef3038;font-size:19px;font-weight:950}
+.emptyCard div{flex:1;min-width:160px}
+.emptyCard strong{color:#eee;font-size:11px;letter-spacing:1px}
+.emptyCard p{margin:6px 0 0;color:#999;font-size:11px}
+.matchCard{display:flex;flex-direction:column;gap:12px;padding:18px;border:1px solid #303239;background:#111317;text-decoration:none;transition:border-color .2s}
+.matchCard:hover{border-color:#ef3038}
+.matchCard small{color:#999;font-size:9px;font-weight:800;letter-spacing:1px}
+.matchCard strong{color:#fff;font-size:15px}
+.matchCard strong i{color:#ef3038;font-size:10px;font-style:normal}
+.matchCard span{color:#ff686f;font-size:9px;font-weight:900;letter-spacing:1px}
+@media(max-width:600px){.section{padding:20px 16px;margin-top:24px}.headingRow{align-items:flex-start}.card{padding:16px}.meta{grid-template-columns:1fr}}
