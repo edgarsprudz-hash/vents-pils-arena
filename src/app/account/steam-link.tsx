@@ -1,28 +1,87 @@
 "use client";
-import {useEffect,useState} from "react";
-import {supabase} from "../../lib/supabase";
 
-type Props={steamId?:string|null};
-export default function SteamLink({steamId:initialSteamId}:Props){
- const [steamId,setSteamId]=useState(initialSteamId||"");
- const [busy,setBusy]=useState(false);
- const [error,setError]=useState("");
- useEffect(()=>{setSteamId(initialSteamId||"");},[initialSteamId]);
- async function link(){
-  if(!supabase)return;
-  setBusy(true);setError("");
-  const {data:{session}}=await supabase.auth.getSession();
-  if(!session){setError("Sign in again.");setBusy(false);return;}
-  const r=await fetch("/api/steam/start",{method:"POST",headers:{authorization:"Bearer "+session.access_token}});
-  const d=await r.json();setBusy(false);
-  if(!r.ok){setError(d.error||"Steam linking unavailable.");return;}
-  window.location.assign(d.url);
- }
- return <section className="steam-link-box">
-  <div><strong>STEAM ACCOUNT</strong><p>{steamId?"Your Steam identity is connected to this VENTSPILS ARENA profile.":"Connect your real Steam profile to build trust and verify your tournament identity."}</p>
-   {steamId&&<div className="steam-verified-profile"><span className="steam-verified-badge">✓ STEAM VERIFIED</span><a href={"https://steamcommunity.com/profiles/"+steamId+"/"} target="_blank" rel="noreferrer">OPEN STEAM PROFILE ↗</a><small>STEAMID64: {steamId}</small></div>}
-  </div>
-  {!steamId&&<button onClick={link} disabled={busy}>{busy?"CONNECTING...":"LINK STEAM ↗"}</button>}
-  {error&&<small role="alert">{error}</small>}
- </section>;
+import { useEffect, useState } from "react";
+import { supabase } from "../../lib/supabase";
+import styles from "./steam-link.module.css";
+
+type Props = { steamId?: string | null };
+
+export default function SteamLink({ steamId: initialSteamId }: Props) {
+  const [steamId, setSteamId] = useState(initialSteamId || "");
+  const [steamName, setSteamName] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    setSteamId(initialSteamId || "");
+  }, [initialSteamId]);
+
+  useEffect(() => {
+    if (!steamId) return;
+    let active = true;
+    fetch("/api/steam/profile?steamId=" + encodeURIComponent(steamId), { cache: "no-store" })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (active && data?.name) setSteamName(data.name); })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [steamId]);
+
+  async function link() {
+    if (!supabase) return;
+    setBusy(true);
+    setError("");
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setError("Sign in again.");
+      setBusy(false);
+      return;
+    }
+    const response = await fetch("/api/steam/start", {
+      method: "POST",
+      headers: { authorization: "Bearer " + session.access_token },
+    });
+    const data = await response.json();
+    setBusy(false);
+    if (!response.ok) {
+      setError(data.error || "Steam linking unavailable.");
+      return;
+    }
+    window.location.assign(data.url);
+  }
+
+  return (
+    <section className={styles.card}>
+      <div className={styles.topline}>
+        <span className={styles.eyebrow}>PLAYER IDENTITY / EXTERNAL ACCOUNT</span>
+        <span className={steamId ? styles.connected : styles.pending}>
+          <i /> {steamId ? "VERIFIED CONNECTION" : "NOT CONNECTED"}
+        </span>
+      </div>
+      <div className={styles.content}>
+        <div className={styles.steamMark} aria-hidden="true">S</div>
+        <div className={styles.copy}>
+          <span className={styles.label}>STEAM ACCOUNT</span>
+          <h3>{steamId ? (steamName || "STEAM ACCOUNT LINKED") : "CONNECT YOUR STEAM"}</h3>
+          <p>{steamId
+            ? "Your Steam identity is connected and verified for this VENTSPILS ARENA profile."
+            : "Link your real Steam profile to verify your tournament identity and compete in the arena."}</p>
+          {steamId && (
+            <div className={styles.identity}>
+              <span className={styles.verified}>✓ STEAM VERIFIED</span>
+              <span className={styles.steamId}>STEAMID64: {steamId}</span>
+              <a href={"https://steamcommunity.com/profiles/" + steamId + "/"} target="_blank" rel="noreferrer">VIEW STEAM PROFILE ↗</a>
+            </div>
+          )}
+        </div>
+        {!steamId && (
+          <button className={styles.button} onClick={link} disabled={busy}>
+            <span className={styles.buttonIcon}>S</span>
+            <span>{busy ? "CONNECTING..." : "LINK STEAM ACCOUNT"}</span>
+            <span className={styles.arrow}>↗</span>
+          </button>
+        )}
+      </div>
+      {error && <p className={styles.error} role="alert">{error}</p>}
+    </section>
+  );
 }
