@@ -22,6 +22,10 @@ export default function AccountPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.replace("/login"); return; }
       setEmail(session.user.email ?? "");
+      const params = new URLSearchParams(window.location.search);
+      const steamError = params.get("steam_error");
+      if (steamError) setMessage("STEAM: " + steamError);
+      else if (params.get("steam") === "linked") setMessage("Steam account connected successfully.");
       const { data } = await supabase.from("profiles").select("nickname, display_name, role, steam_id").eq("id", session.user.id).maybeSingle();
       setProfile(data);
       setLoading(false);
@@ -60,7 +64,7 @@ export default function AccountPage() {
         </section>
         <SteamLink steamId={profile?.steam_id} />
         <MyMatches />
-        {message && <p className="account-message">{message}</p>}
+        {message && <p className="account-message" role="status">{message}</p>}
       </div>
     </main>
   );
