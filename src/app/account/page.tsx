@@ -81,7 +81,7 @@ export default function AccountPage() {
         </section>
         <section className="account-actions">
           <div><span className="account-kicker">{tr.space}</span><h3>{tr.ready}</h3><p>{tr.spaceText}</p></div>
-          <div className="account-action-links"><Link href="/tournaments">{tr.browse} <span>↗</span></Link>{profile?.role === "SUPER_ADMIN" && <Link href="/admin">{tr.admin} <span>↗</span></Link>}<button type="button" onClick={logout}>{tr.logout} <span>↗</span></button></div>
+          <div className="account-action-links"><Link href="/community">{language === "ru" ? "ДРУЗЬЯ И КОМАНДЫ" : language === "lv" ? "DRAUGI UN KOMANDAS" : "FRIENDS & TEAMS"} <span>↗</span></Link><Link href="/tournaments">{tr.browse} <span>↗</span></Link>{profile?.role === "SUPER_ADMIN" && <Link href="/admin">{tr.admin} <span>↗</span></Link>}<button type="button" onClick={logout}>{tr.logout} <span>↗</span></button></div>
         </section>
         <SteamLink steamId={profile?.steam_id} />
         <MyMatches />
