@@ -56,11 +56,16 @@ returns boolean language sql stable security definer set search_path=public as $
   select exists(select 1 from public.arena_team_members m where m.team_id=p_team_id and m.user_id=p_user_id and m.status='ACTIVE');
 $$;
 create or replace function public.is_arena_team_owner(p_team_id uuid,p_user_id uuid)
-returns boolean language sql stable security definer set search_path=public as $$
+returns boolean language sql stable security definer set search_path=public as $
   select exists(select 1 from public.arena_teams t where t.id=p_team_id and t.owner_id=p_user_id);
-$$;
+$;
+create or replace function public.is_arena_team_invited(p_team_id uuid,p_user_id uuid)
+returns boolean language sql stable security definer set search_path=public as $
+  select exists(select 1 from public.arena_team_members m where m.team_id=p_team_id and m.user_id=p_user_id and m.status='INVITED');
+$;
 revoke all on function public.is_arena_team_member(uuid,uuid) from public;
 revoke all on function public.is_arena_team_owner(uuid,uuid) from public;
+revoke all on function public.is_arena_team_invited(uuid,uuid) from public;
 create or replace function public.are_arena_friends(p_user_a uuid,p_user_b uuid)
 returns boolean language sql stable security definer set search_path=public as $
   select exists(select 1 from public.friend_requests f
@@ -71,12 +76,13 @@ $;
 revoke all on function public.are_arena_friends(uuid,uuid) from public;
 grant execute on function public.is_arena_team_member(uuid,uuid) to authenticated;
 grant execute on function public.is_arena_team_owner(uuid,uuid) to authenticated;
+grant execute on function public.is_arena_team_invited(uuid,uuid) to authenticated;
 grant execute on function public.are_arena_friends(uuid,uuid) to authenticated;
 
 alter table public.arena_teams enable row level security;
 drop policy if exists "Team members can view their teams" on public.arena_teams;
 create policy "Team members can view their teams" on public.arena_teams
-for select to authenticated using (owner_id=auth.uid() or public.is_arena_team_member(id,auth.uid()));
+for select to authenticated using (owner_id=auth.uid() or public.is_arena_team_member(id,auth.uid()) or public.is_arena_team_invited(id,auth.uid()));
 drop policy if exists "Players can create their own teams" on public.arena_teams;
 create policy "Players can create their own teams" on public.arena_teams
 for insert to authenticated with check (owner_id=auth.uid());
