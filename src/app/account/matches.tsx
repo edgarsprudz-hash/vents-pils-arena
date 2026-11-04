@@ -7,7 +7,7 @@ import { supabase } from "../../lib/supabase";
 import styles from "./matches.module.css";
 
 type Tournament = { id:string; title:string; game:string; event_date:string|null; location:string; format:string; status:string };
-type Match = { my_team?:string; id:string; tournament_id:string; round_number:number; match_number:number; team_a:string|null; team_b:string|null; winner_team:string|null; status:string; score_a:number|null; score_b:number|null; cybershoke_url:string|null; map_name:string|null };
+type Match = { my_team?:string|null; id:string; tournament_id:string; round_number:number; match_number:number; team_a:string|null; team_b:string|null; winner_team:string|null; status:string; score_a:number|null; score_b:number|null; cybershoke_url:string|null; map_name:string|null };
 type Registration = { tournament_id:string; user_id:string; team_name:string; status:string; roster:{nickname?:string;steam?:string}[]|null };
 
 function steamIdFrom(value:string){
