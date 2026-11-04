@@ -82,12 +82,12 @@ export default function MyMatches(){
    <div className={styles.headingRow}><h2>{t.myMatches} <em>{t.matches}</em></h2></div>
    {busy?<p className={styles.empty}>{t.loadingMatches}</p>:items.length===0?<p className={styles.empty}>{t.noMatches}</p>:<div className={styles.grid}>{items.map(item=>{
     const ownTeam=item.my_team||"—";
-    const isA=ownTeam===item.team_a;
+    
     return <article className={styles.matchCard} key={item.id}>
      <div className={styles.matchTop}><small>{t.round} {item.round_number} / {t.match} {item.match_number}</small><b className={item.status==="LIVE"?styles.liveStatus:""}>{statusLabel(item.status)}</b></div>
      <strong>{item.team_a||"TBD"} <i>{t.vs}</i> {item.team_b||"TBD"}</strong>
      <div className={styles.matchMeta}><span><i>{t.team}</i>{ownTeam}</span><span><i>{t.map}</i>{item.map_name||"—"}</span>{item.score_a!==null&&item.score_b!==null&&<span><i>{t.score}</i>{item.score_a} : {item.score_b}</span>}</div>
-     {item.cybershoke_url?<a className={styles.roomButton} href={item.cybershoke_url} target="_blank" rel="noopener noreferrer">{t.open}</a>:<span className={styles.roomMissing}>{t.roomMissing}</span>}
+     {<Link className={styles.roomButton} href={"/account/matches/"+item.id}>{ru?"JOIN THE ROOM ↗":lv?"ATVĒRT SPĒLES TELPU ↗":"JOIN THE ROOM ↗"}</Link>}
     </article>;
    })}</div>}
   </section>
