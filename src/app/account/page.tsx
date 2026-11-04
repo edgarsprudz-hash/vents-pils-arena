@@ -12,7 +12,25 @@ type Profile = { nickname: string | null; display_name: string | null; role: str
 
 export default function AccountPage() {
   const {language}=useLanguage();
-  const tr=language==="ru"?{loading:"ЗАГРУЗКА ПРОФИЛЯ ИГРОКА...",crumb:"ЛИЧНЫЙ КАБИНЕТ",heading:"ЛИЧНЫЙ",sub:"КАБИНЕТ.",overview:"ОБЗОР АККАУНТА",active:"СЕАНС АКТИВЕН",welcome:"С ВОЗВРАЩЕНИЕМ",player:"ИГРОК",nickname:"НИКНЕЙМ ИГРОКА",display:"ОТОБРАЖАЕМОЕ ИМЯ",type:"ТИП АККАУНТА",notset:"НЕ УКАЗАНО",space:"ТВОЁ ПРОСТРАНСТВО",ready:"ГОТОВ К ИГРЕ?",spaceText:"Профиль игрока и аккаунт арены — в одном месте.",browse:"СМОТРЕТЬ ТУРНИРЫ",admin:"ПАНЕЛЬ АДМИНИСТРАТОРА",logout:"ВЫЙТИ"}:language==="lv"?{loading:"IELĀDĒ SPĒLĒTĀJA PROFILU...",crumb:"PERSONĪGAIS KABINETS",heading:"PERSONĪGAIS",sub:"KABINETS.",overview:"KONTA PĀRSKATS",active:"SESIJA AKTĪVA",welcome:"LAIPNI ATGRIEZIES",player:"SPĒLĒTĀJS",nickname:"SPĒLĒTĀJA NIKS",display:"ATTĒLOTAIS VĀRDS",type:"KONTA TIPS",notset:"NAV IESTATĪTS",space:"TAVA TELPA",ready:"GATAVS SACENSTIES?",spaceText:"Tavs spēlētāja profils un arēnas konts vienuviet.",browse:"APSKATĪT TURNĪRUS",admin:"ADMINISTRĀCIJAS PANELIS",logout:"IZIET"}:{loading:"{tr.loading}",crumb:"{tr.crumb}",heading:"PERSONAL",sub:"CABINET.",overview:"{tr.overview}",active:"{tr.active}",welcome:"{tr.welcome}",player:tr.player,nickname:"{tr.nickname}",display:"{tr.display}",type:"{tr.type}",notset:tr.notset,space:"{tr.space}",ready:"{tr.ready}",spaceText:"{tr.spaceText}",browse:"{tr.browse}",admin:"{tr.admin}",logout:"{tr.logout}"};
+  const tr = language === "ru" ? {
+    loading: "ЗАГРУЗКА ПРОФИЛЯ ИГРОКА...", crumb: "ЛИЧНЫЙ КАБИНЕТ", heading: "ЛИЧНЫЙ", sub: "КАБИНЕТ.",
+    overview: "ОБЗОР АККАУНТА", active: "СЕАНС АКТИВЕН", welcome: "С ВОЗВРАЩЕНИЕМ", player: "ИГРОК",
+    nickname: "НИКНЕЙМ ИГРОКА", display: "ОТОБРАЖАЕМОЕ ИМЯ", type: "ТИП АККАУНТА", notset: "НЕ УКАЗАНО",
+    space: "ТВОЁ ПРОСТРАНСТВО", ready: "ГОТОВ К ИГРЕ?", spaceText: "Профиль игрока и аккаунт арены — в одном месте.",
+    browse: "СМОТРЕТЬ ТУРНИРЫ", admin: "ПАНЕЛЬ АДМИНИСТРАТОРА", logout: "ВЫЙТИ"
+  } : language === "lv" ? {
+    loading: "IELĀDĒ SPĒLĒTĀJA PROFILU...", crumb: "PERSONĪGAIS KABINETS", heading: "PERSONĪGAIS", sub: "KABINETS.",
+    overview: "KONTA PĀRSKATS", active: "SESIJA AKTĪVA", welcome: "LAIPNI ATGRIEZIES", player: "SPĒLĒTĀJS",
+    nickname: "SPĒLĒTĀJA NIKS", display: "ATTĒLOTAIS VĀRDS", type: "KONTA TIPS", notset: "NAV IESTATĪTS",
+    space: "TAVA TELPA", ready: "GATAVS SACENSTIES?", spaceText: "Tavs spēlētāja profils un arēnas konts vienuviet.",
+    browse: "APSKATĪT TURNĪRUS", admin: "ADMINISTRĀCIJAS PANELIS", logout: "IZIET"
+  } : {
+    loading: "LOADING PLAYER PROFILE...", crumb: "PERSONAL CABINET", heading: "PERSONAL", sub: "CABINET.",
+    overview: "ACCOUNT OVERVIEW", active: "ACTIVE SESSION", welcome: "WELCOME BACK", player: "PLAYER",
+    nickname: "PLAYER NICKNAME", display: "DISPLAY NAME", type: "ACCOUNT TYPE", notset: "NOT SET",
+    space: "YOUR SPACE", ready: "READY TO COMPETE?", spaceText: "Your player profile and arena account in one place.",
+    browse: "BROWSE TOURNAMENTS", admin: "ADMIN CONTROL", logout: "LOG OUT"
+  };
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [profile, setProfile] = useState<Profile | null>(null);
