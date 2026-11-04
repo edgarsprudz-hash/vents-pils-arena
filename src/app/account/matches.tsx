@@ -7,7 +7,7 @@ import { supabase } from "../../lib/supabase";
 import styles from "./matches.module.css";
 
 type Tournament = { id:string; title:string; game:string; event_date:string|null; location:string; format:string; status:string };
-type Match = { id:string; tournament_id:string; round_number:number; match_number:number; team_a:string|null; team_b:string|null; winner_team:string|null; status:string; score_a:number|null; score_b:number|null; cybershoke_url:string|null; map_name:string|null };
+type Match = { my_team?:string; id:string; tournament_id:string; round_number:number; match_number:number; team_a:string|null; team_b:string|null; winner_team:string|null; status:string; score_a:number|null; score_b:number|null; cybershoke_url:string|null; map_name:string|null };
 type Registration = { tournament_id:string; user_id:string; team_name:string; status:string; roster:{nickname?:string;steam?:string}[]|null };
 
 function steamIdFrom(value:string){
@@ -61,7 +61,7 @@ export default function MyMatches(){
       const names=teamNamesByTournament.get(match.tournament_id);
       return !!names && (names.has(match.team_a||"") || names.has(match.team_b||""));
      });
-     setItems(teamMatches);
+     setItems(teamMatches.map(match=>({...match,my_team:teamNamesByTournament.get(match.tournament_id)?.has(match.team_a||"")?match.team_a:match.team_b})));
     }
    }
    if(active)setBusy(false);
@@ -81,7 +81,7 @@ export default function MyMatches(){
    <div className={styles.kicker}>{t.area} <i/></div>
    <div className={styles.headingRow}><h2>{t.myMatches} <em>{t.matches}</em></h2></div>
    {busy?<p className={styles.empty}>{t.loadingMatches}</p>:items.length===0?<p className={styles.empty}>{t.noMatches}</p>:<div className={styles.grid}>{items.map(item=>{
-    const ownTeam=item.team_a&&tournaments.length?item.team_a:item.team_b||item.team_a||"—";
+    const ownTeam=item.my_team||"—";
     const isA=ownTeam===item.team_a;
     return <article className={styles.matchCard} key={item.id}>
      <div className={styles.matchTop}><small>{t.round} {item.round_number} / {t.match} {item.match_number}</small><b className={item.status==="LIVE"?styles.liveStatus:""}>{statusLabel(item.status)}</b></div>
