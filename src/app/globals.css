@@ -294,3 +294,17 @@
   .support-ticket-detail>h2{font-size:32px}
   .support-admin-toolbar>div{flex-wrap:wrap;gap:9px 14px}
 }
+
+
+.team-profile-link-card>a{display:inline-flex;align-self:flex-start;margin-top:auto;padding:12px 15px;background:#ef3038;color:#fff;font-size:9px;font-weight:900;letter-spacing:1px}
+.team-profile-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:28px 0}
+.team-profile-stats>div{display:grid;gap:10px;padding:20px;border:1px solid #353740;background:linear-gradient(145deg,#191b21,#101115)}
+.team-profile-stats small,.team-profile-section>.arena-section-kicker{font-size:9px;letter-spacing:1.4px;color:#999;font-weight:800}
+.team-profile-stats strong{font:900 38px 'Barlow Condensed',Impact;color:#f4f4f2}
+.team-stats-note{color:#858891;font-size:10px;line-height:1.7}
+.team-profile-section{margin:36px 0;padding-top:25px;border-top:1px solid #343740}
+.team-profile-roster,.team-profile-matches{display:grid;gap:9px;margin-top:17px}
+.team-profile-roster>div,.team-profile-matches article{display:flex;align-items:center;gap:14px;padding:17px 18px;border:1px solid #353740;background:#14161b}
+.team-profile-roster>div>b{color:#ef555c;font-size:10px}.team-profile-roster>div>strong{font-size:12px}.team-profile-roster a{margin-left:auto;color:#ef666d;font-size:9px;font-weight:800}
+.team-profile-matches article>div{display:grid;gap:7px;flex:1;min-width:0}.team-profile-matches small{color:#858891;font-size:8px;letter-spacing:1px}.team-profile-matches article strong{font-size:11px;overflow-wrap:anywhere}.team-profile-matches article strong i{color:#ef555c;font-style:normal;padding:0 6px}.team-profile-matches article>span{font-weight:900;font-size:12px;white-space:nowrap}.team-profile-matches article> b{font-size:8px;color:#999}.team-profile-matches .team-result-win{color:#7ee0a4}.team-profile-matches .team-result-loss{color:#ef666d}
+@media(max-width:700px){.team-profile-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.team-profile-stats>div:last-child{grid-column:auto}.team-profile-matches article{flex-wrap:wrap}.team-profile-matches article>div{flex-basis:100%}}
