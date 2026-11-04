@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import { useLanguage } from "../components/LanguageProvider";
 import styles from "./community.module.css";
@@ -64,6 +63,7 @@ export default function CommunityPage() {
   const [players, setPlayers] = useState<Record<string, Player>>({});
   const [teams, setTeams] = useState<Team[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
+  const [teamInvites, setTeamInvites] = useState<{ member: Member; team: Team }[]>([]);
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<Player[]>([]);
   const [teamName, setTeamName] = useState("");
@@ -86,17 +86,29 @@ export default function CommunityPage() {
     setProfile(me as Player | null);
     setRequests((reqs || []) as FriendRequest[]);
     setTeams((ownTeams || []) as Team[]);
-    const teamIds = (ownTeams || []).map((team: Team) => team.id);
-    const [{ data: teamMembers }, { data: friendProfiles }, { data: inviteTeams }] = await Promise.all([
-      teamIds.length ? supabase.from("arena_team_members").select("team_id,user_id,role,status").in("team_id", teamIds) : Promise.resolve({ data: [] as Member[] }),
-      supabase.from("player_directory").select("id,nickname,display_name").in("id", Array.from(new Set((reqs || []).flatMap((r: FriendRequest) => [r.requester_id, r.addressee_id]).concat((invites || []).map((i: Member) => i.user_id))))),
+    const ownTeamIds = (ownTeams || []).map((team: Team) => team.id);
+    const [{ data: ownMembers }, { data: activeMemberships }, { data: inviteTeams }] = await Promise.all([
+      ownTeamIds.length ? supabase.from("arena_team_members").select("team_id,user_id,role,status").in("team_id", ownTeamIds) : Promise.resolve({ data: [] as Member[] }),
+      supabase.from("arena_team_members").select("team_id,user_id,role,status").eq("user_id", session.user.id).eq("status", "ACTIVE"),
       (invites || []).length ? supabase.from("arena_teams").select("id,name,owner_id").in("id", (invites || []).map((i: Member) => i.team_id)) : Promise.resolve({ data: [] as Team[] })
     ]);
-    setMembers((teamMembers || []) as Member[]);
+    const joinedTeamIds = (activeMemberships || []).map((m: Member) => m.team_id).filter((id: string) => !ownTeamIds.includes(id));
+    const { data: joinedTeams } = joinedTeamIds.length ? await supabase.from("arena_teams").select("id,name,owner_id").in("id", joinedTeamIds) : { data: [] as Team[] };
+    const allTeams = [...(ownTeams || []), ...(joinedTeams || []), ...(inviteTeams || [])] as Team[];
+    const allTeamIds = Array.from(new Set(allTeams.map(team => team.id)));
+    const { data: teamMembers } = allTeamIds.length ? await supabase.from("arena_team_members").select("team_id,user_id,role,status").in("team_id", allTeamIds) : { data: [] as Member[] };
+    setMembers((teamMembers || ownMembers || []) as Member[]);
+    setTeamInvites((invites || []).map((member: Member) => ({ member, team: (inviteTeams || []).find((team: Team) => team.id === member.team_id) })).filter((item: {member: Member; team?: Team}) => !!item.team) as {member: Member; team: Team}[]);
+    const playerIds = Array.from(new Set([
+      ...(reqs || []).flatMap((r: FriendRequest) => [r.requester_id, r.addressee_id]),
+      ...(teamMembers || []).map((m: Member) => m.user_id),
+      ...(invites || []).map((m: any) => m.invited_by)
+    ]));
+    const { data: friendProfiles } = playerIds.length ? await supabase.from("player_directory").select("id,nickname,display_name").in("id", playerIds) : { data: [] as Player[] };
     const directory: Record<string, Player> = {};
     (friendProfiles || []).forEach((p: Player) => { directory[p.id] = p; });
     setPlayers(directory);
-    if (inviteTeams?.length) setTeams(old => [...old, ...(inviteTeams as Team[]).filter(t => !old.some(x => x.id === t.id))]);
+    setTeams(allTeams.filter((team, index) => allTeams.findIndex(other => other.id === team.id) === index));
     setLoading(false);
   }
 
@@ -168,7 +180,7 @@ export default function CommunityPage() {
   const incoming = requests.filter(r => r.addressee_id === userId && r.status === "PENDING");
   const outgoing = requests.filter(r => r.requester_id === userId && r.status === "PENDING");
   const friends = requests.filter(r => r.status === "ACCEPTED");
-  const pendingTeamInvites = members.filter(m => m.user_id === userId && m.status === "INVITED");
+  const pendingTeamInvites = teamInvites;
 
   return <main className={styles.page}><div className={styles.shell}>
     <div className={styles.crumb}><Link href="/account">{t.back}</Link><b>/</b> VENTSPILS ARENA / COMMUNITY</div>
@@ -193,11 +205,11 @@ export default function CommunityPage() {
       <section className={styles.panel}>
         <div className={styles.panelTitle}><span>03 / SQUAD MANAGEMENT</span><h2>{t.teams}</h2></div>
         <form className={styles.createTeam} onSubmit={createTeam}><input required minLength={2} maxLength={40} value={teamName} onChange={e=>setTeamName(e.target.value)} placeholder={t.teamName}/><button disabled={busy}>{t.create}</button></form>
-        {teams.filter(team=>team.owner_id===userId).length ? teams.filter(team=>team.owner_id===userId).map(team=><article className={styles.team} key={team.id}><h3>{team.name}</h3><div className={styles.subhead}>{t.members}</div>{members.filter(m=>m.team_id===team.id).map(m=><div className={styles.member} key={m.user_id}><span>{m.role==="CAPTAIN"?"CAPTAIN":"PLAYER"}</span><strong>{m.user_id===userId?(profile?.nickname||"YOU"):(players[m.user_id]?.nickname||"PLAYER")}</strong><small>{m.status==="ACTIVE"?t.active:t.pending}</small></div>)}<div className={styles.invite}><select value={inviteFor[team.id]||""} onChange={e=>setInviteFor(old=>({...old,[team.id]:e.target.value}))}><option value="">{t.chooseFriend}</option>{friends.map(r=>{const other=r.requester_id===userId?r.addressee_id:r.requester_id;return <option key={other} value={other}>{players[other]?.nickname||"PLAYER"}</option>})}</select><button disabled={busy||!inviteFor[team.id]} onClick={()=>inviteFriend(team.id)}>{t.invite}</button></div></article>) : <p className={styles.empty}>{t.noTeams}</p>}
+        {teams.length ? teams.map(team=><article className={styles.team} key={team.id}><h3>{team.name}</h3><div className={styles.subhead}>{t.members}</div>{members.filter(m=>m.team_id===team.id).map(m=><div className={styles.member} key={m.user_id}><span>{m.role==="CAPTAIN"?"CAPTAIN":"PLAYER"}</span><strong>{m.user_id===userId?(profile?.nickname||"YOU"):(players[m.user_id]?.nickname||"PLAYER")}</strong><small>{m.status==="ACTIVE"?t.active:t.pending}</small></div>)}{team.owner_id===userId&&<div className={styles.invite}><select value={inviteFor[team.id]||""} onChange={e=>setInviteFor(old=>({...old,[team.id]:e.target.value}))}><option value="">{t.chooseFriend}</option>{friends.map(r=>{const other=r.requester_id===userId?r.addressee_id:r.requester_id;return <option key={other} value={other}>{players[other]?.nickname||"PLAYER"}</option>})}</select><button disabled={busy||!inviteFor[team.id]} onClick={()=>inviteFriend(team.id)}>{t.invite}</button></div>}</article>) : <p className={styles.empty}>{t.noTeams}</p>}
       </section>
     </div>
 
-    {pendingTeamInvites.length>0&&<section className={styles.panel}><div className={styles.panelTitle}><span>04 / TEAM REQUESTS</span><h2>{t.invited}</h2></div>{pendingTeamInvites.map(invite=>{const team=teams.find(t=>t.id===invite.team_id);return <div className={styles.person} key={invite.team_id}><strong>{team?.name||"TEAM"}</strong><button onClick={()=>respondTeamInvite(invite.team_id,"ACTIVE")} disabled={busy}>{t.accept}</button><button className={styles.secondary} onClick={()=>respondTeamInvite(invite.team_id,"DECLINED")} disabled={busy}>{t.decline}</button></div>})}</section>}
+    {pendingTeamInvites.length>0&&<section className={styles.panel}><div className={styles.panelTitle}><span>04 / TEAM REQUESTS</span><h2>{t.invited}</h2></div>{pendingTeamInvites.map(invite=>{const team=invite.team;return <div className={styles.person} key={invite.member.team_id}><strong>{team.name||"TEAM"}</strong><small>INVITED BY {players[invite.member.invited_by]?.nickname||"TEAM CAPTAIN"}</small><button onClick={()=>respondTeamInvite(invite.member.team_id,"ACTIVE")} disabled={busy}>{t.accept}</button><button className={styles.secondary} onClick={()=>respondTeamInvite(invite.member.team_id,"DECLINED")} disabled={busy}>{t.decline}</button></div>})}</section>}
     <div className={styles.bottom}><Link href="/account">← {t.back}</Link><span>COMPETE • CONNECT • CONQUER</span></div>
   </div></main>;
 }
