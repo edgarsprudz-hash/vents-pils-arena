@@ -76,6 +76,8 @@ export default function CommunityPage() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { setLoading(false); return; }
     setUserId(session.user.id);
+    const { data: suggestedPlayers } = await supabase.from("player_directory").select("id,nickname,display_name").neq("id", session.user.id).order("nickname").limit(12);
+    setResults((suggestedPlayers || []) as Player[]);
     const [{ data: me }, { data: reqs }, { data: ownTeams }, { data: invites }] = await Promise.all([
       supabase.from("player_directory").select("id,nickname,display_name").eq("id", session.user.id).maybeSingle(),
       supabase.from("friend_requests").select("id,requester_id,addressee_id,status").or("requester_id.eq." + session.user.id + ",addressee_id.eq." + session.user.id),
