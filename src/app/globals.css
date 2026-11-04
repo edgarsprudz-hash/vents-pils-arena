@@ -223,3 +223,6 @@
 .language-switcher button{min-width:38px;padding:9px 8px;border:0;background:transparent;color:#999;font:800 10px Inter,Arial;letter-spacing:1px;cursor:pointer;transition:.18s}
 .language-switcher button:hover{color:#fff}.language-switcher button.active{background:#ef3038;color:#fff}
 @media(max-width:600px){.language-switcher{right:12px;bottom:12px}.language-switcher button{min-width:34px;padding:8px 6px}}
+
+/* Saved-team selection in tournament registration */
+.team-registration-form label select{width:100%;min-height:46px;padding:12px 14px;border:1px solid #34363d;border-radius:2px;background:#111317;color:#f4f4f2;font:13px Inter,Arial;outline:none}.team-registration-form label select:focus{border-color:#ef3038}
