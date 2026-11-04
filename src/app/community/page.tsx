@@ -56,7 +56,6 @@ export default function CommunityPage() {
     already: "A request or invitation already exists.", active: "ACTIVE", emptySearch: "Enter a nickname to search."
   };
 
-  const router = useRouter();
   const [userId, setUserId] = useState("");
   const [profile, setProfile] = useState<Player | null>(null);
   const [requests, setRequests] = useState<FriendRequest[]>([]);
