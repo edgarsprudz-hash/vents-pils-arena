@@ -217,3 +217,9 @@
 
 /* Public tournament bracket */
 .public-bracket-section{margin:48px 0 55px;padding-top:32px;border-top:1px solid #343740}.public-bracket-intro{margin:-22px 0 8px;color:#999;font-size:11px;line-height:1.8}.public-bracket-board{display:flex;gap:18px;overflow-x:auto;padding:28px 0 18px;align-items:stretch}.public-bracket-round{display:flex;flex:0 0 245px;flex-direction:column;gap:15px}.public-bracket-round h3{margin:0;color:#ef555c;font:900 21px 'Barlow Condensed',Impact;letter-spacing:1px}.public-bracket-match{padding:12px;border:1px solid #373a43;background:linear-gradient(145deg,#191b21,#101115)}.public-bracket-match-top{display:flex;justify-content:space-between;padding-bottom:10px;color:#888;font-size:8px;letter-spacing:1px}.public-bracket-match-top b{color:#ef777d}.public-bracket-team{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:13px 10px;border:1px solid #353740;border-bottom:0;background:#0c0e12;color:#ddd;font-size:10px}.public-bracket-team:last-child{border-bottom:1px solid #353740}.public-bracket-team span{overflow-wrap:anywhere}.public-bracket-team b{color:#8cf0b1;font-size:7px;letter-spacing:.8px}.public-bracket-winner{background:#173023;border-color:#3d9864;color:#8cf0b1}@media(max-width:650px){.public-bracket-round{flex-basis:220px}.public-bracket-intro{margin-top:-14px}}
+
+/* Persistent language selector */
+.language-switcher{position:fixed;z-index:200;right:22px;bottom:20px;display:flex;gap:3px;padding:4px;background:#111216;border:1px solid #41434b;box-shadow:0 8px 28px #0009}
+.language-switcher button{min-width:38px;padding:9px 8px;border:0;background:transparent;color:#999;font:800 10px Inter,Arial;letter-spacing:1px;cursor:pointer;transition:.18s}
+.language-switcher button:hover{color:#fff}.language-switcher button.active{background:#ef3038;color:#fff}
+@media(max-width:600px){.language-switcher{right:12px;bottom:12px}.language-switcher button{min-width:34px;padding:8px 6px}}
