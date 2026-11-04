@@ -1,6 +1,6 @@
 -- VENTSPILS ARENA: player friendships and reusable community teams
 create or replace view public.player_directory as
-select id, nickname, display_name
+select id, nickname, display_name, steam_id
 from public.profiles
 where nickname is not null and length(trim(nickname)) > 0;
 revoke all on public.player_directory from anon;
@@ -141,3 +141,25 @@ end; $$;
 drop trigger if exists protect_team_member_identity on public.arena_team_members;
 create trigger protect_team_member_identity before update on public.arena_team_members
 for each row execute function public.protect_team_member_identity();
+
+-- Tournament sign-up can use an existing captain-owned arena team.
+drop policy if exists "Players can register themselves" on public.tournament_registrations;
+create policy "Players can register themselves" on public.tournament_registrations
+for insert to authenticated with check (
+  user_id=auth.uid()
+  and status='PENDING'
+  and length(trim(coalesce(team_name,''))) between 2 and 40
+  and jsonb_typeof(roster)='array'
+  and jsonb_array_length(roster) between 1 and coalesce((
+    select case
+      when lower(t.format) like '2v2%' then 2
+      when lower(t.format) like '3v3%' then 3
+      else 5
+    end
+    from public.tournaments t where t.id=tournament_registrations.tournament_id
+  ),5)
+  and (arena_team_id is null or exists(
+    select 1 from public.arena_teams team
+    where team.id=tournament_registrations.arena_team_id and team.owner_id=auth.uid()
+  ))
+);
