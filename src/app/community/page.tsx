@@ -9,7 +9,7 @@ import styles from "./community.module.css";
 type Player = { id: string; nickname: string; display_name: string | null };
 type FriendRequest = { id: string; requester_id: string; addressee_id: string; status: string };
 type Team = { id: string; name: string; owner_id: string };
-type Member = { team_id: string; user_id: string; role: string; status: string };
+type Member = { team_id: string; user_id: string; role: string; status: string; invited_by?: string };
 
 export default function CommunityPage() {
   const { language } = useLanguage();
@@ -81,7 +81,7 @@ export default function CommunityPage() {
       supabase.from("player_directory").select("id,nickname,display_name").eq("id", session.user.id).maybeSingle(),
       supabase.from("friend_requests").select("id,requester_id,addressee_id,status").or("requester_id.eq." + session.user.id + ",addressee_id.eq." + session.user.id),
       supabase.from("arena_teams").select("id,name,owner_id").eq("owner_id", session.user.id).order("created_at"),
-      supabase.from("arena_team_members").select("team_id,user_id,role,status").eq("user_id", session.user.id).eq("status", "INVITED")
+      supabase.from("arena_team_members").select("team_id,user_id,role,status,invited_by").eq("user_id", session.user.id).eq("status", "INVITED")
     ]);
     setProfile(me as Player | null);
     setRequests((reqs || []) as FriendRequest[]);
