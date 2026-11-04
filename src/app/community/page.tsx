@@ -208,7 +208,7 @@ export default function CommunityPage() {
       </section>
     </div>
 
-    {pendingTeamInvites.length>0&&<section className={styles.panel}><div className={styles.panelTitle}><span>04 / TEAM REQUESTS</span><h2>{t.invited}</h2></div>{pendingTeamInvites.map(invite=>{const team=invite.team;return <div className={styles.person} key={invite.member.team_id}><strong>{team.name||"TEAM"}</strong><small>INVITED BY {players[invite.member.invited_by]?.nickname||"TEAM CAPTAIN"}</small><button onClick={()=>respondTeamInvite(invite.member.team_id,"ACTIVE")} disabled={busy}>{t.accept}</button><button className={styles.secondary} onClick={()=>respondTeamInvite(invite.member.team_id,"DECLINED")} disabled={busy}>{t.decline}</button></div>})}</section>}
+    {pendingTeamInvites.length>0&&<section className={styles.panel}><div className={styles.panelTitle}><span>04 / TEAM REQUESTS</span><h2>{t.invited}</h2></div>{pendingTeamInvites.map(invite=>{const team=invite.team;return <div className={styles.person} key={invite.member.team_id}><strong>{team.name||"TEAM"}</strong><small>INVITED BY {players[invite.member.invited_by || ""]?.nickname||"TEAM CAPTAIN"}</small><button onClick={()=>respondTeamInvite(invite.member.team_id,"ACTIVE")} disabled={busy}>{t.accept}</button><button className={styles.secondary} onClick={()=>respondTeamInvite(invite.member.team_id,"DECLINED")} disabled={busy}>{t.decline}</button></div>})}</section>}
     <div className={styles.bottom}><Link href="/account">← {t.back}</Link><span>COMPETE • CONNECT • CONQUER</span></div>
   </div></main>;
 }
