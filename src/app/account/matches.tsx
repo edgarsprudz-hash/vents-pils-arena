@@ -11,7 +11,7 @@ type Match = { my_team?:string; id:string; tournament_id:string; round_number:nu
 type Registration = { tournament_id:string; user_id:string; team_name:string; status:string; roster:{nickname?:string;steam?:string}[]|null };
 
 function steamIdFrom(value:string){
- const match=value.match(/(?:^|\\D)(\\d{17})(?:\\D|$)/);
+  const match=value.match(/(\d{17})/);
  return match?.[1]||value.trim();
 }
 
