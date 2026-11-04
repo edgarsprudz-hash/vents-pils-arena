@@ -226,3 +226,71 @@
 
 /* Saved-team selection in tournament registration */
 .team-registration-form label select{width:100%;min-height:46px;padding:12px 14px;border:1px solid #34363d;border-radius:2px;background:#111317;color:#f4f4f2;font:13px Inter,Arial;outline:none}.team-registration-form label select:focus{border-color:#ef3038}
+
+
+/* Mobile polish: tournament cards and administrator case review */
+.arena-section-shell,.arena-content-grid,.arena-content-card{min-width:0}
+.arena-content-card{display:flex;flex-direction:column}
+.arena-content-card h2,.arena-content-card p{overflow-wrap:anywhere}
+.arena-content-card>a{align-self:flex-start;margin-top:auto}
+@media(max-width:800px){
+  .arena-section-page{padding-left:20px;padding-right:20px}
+  .arena-section-hero{gap:18px;align-items:flex-start}
+  .arena-section-copy{min-width:0;flex:1}
+  .arena-section-copy h1{font-size:clamp(54px,13vw,82px);overflow-wrap:anywhere}
+  .arena-section-stamp{width:68px;height:68px;margin:12px 8px 0 0}
+  .arena-section-stamp span{font-size:36px}
+  .arena-section-stamp small{font-size:4px}
+  .arena-content-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+  .arena-content-card{min-height:0;padding:20px}
+  .arena-content-card p{min-height:0}
+  .arena-empty-state{align-items:flex-start;flex-wrap:wrap;padding:22px}
+  .arena-empty-state>a{margin-left:0}
+}
+@media(max-width:420px){
+  .arena-section-hero{margin-top:34px}
+  .arena-section-stamp{width:54px;height:54px;flex:0 0 54px}
+  .arena-section-stamp span{font-size:29px}
+  .arena-section-bottom{flex-direction:column}
+}
+.support-ticket-detail{display:flex;flex-direction:column;gap:14px;min-width:0}
+.support-ticket-detail>h2{font-size:clamp(28px,4vw,38px);margin:4px 0 0}
+.support-ticket-detail>p{margin:0;color:#b8bac2;font-size:11px;line-height:1.7}
+.support-ticket-detail .support-message-content{border-radius:3px;background:linear-gradient(145deg,#0a0c10,#0d1016);padding:20px;min-height:130px}
+.support-ticket-detail .support-status-label{margin-top:5px;gap:10px}
+.support-ticket-detail .support-status-label select,
+.support-ticket-detail .support-status-label textarea{
+  width:100%;max-width:none;min-height:48px;padding:14px 15px;
+  border:1px solid #383c46;border-radius:4px;background:#090b10;color:#f4f5f7;
+  font:500 13px Inter,Arial;letter-spacing:0;outline:none;resize:vertical;
+  transition:border-color .18s,box-shadow .18s,background .18s;
+}
+.support-ticket-detail .support-status-label textarea{min-height:112px;line-height:1.65}
+.support-ticket-detail .support-status-label select:focus,
+.support-ticket-detail .support-status-label textarea:focus{border-color:#ef4b53;background:#101319;box-shadow:0 0 0 3px #ef30381a}
+.support-ticket-detail .support-status-label select option{background:#111319;color:#fff}
+.support-ticket-detail label:has(input[type="checkbox"]){
+  display:flex;align-items:flex-start;gap:11px;padding:13px 14px;
+  border:1px solid #30343d;border-radius:4px;background:#14171d;
+  color:#c6c8ce;font-size:10px;font-weight:700;line-height:1.6;letter-spacing:.7px;
+}
+.support-ticket-detail input[type="checkbox"]{width:18px;height:18px;flex:0 0 18px;margin:0;accent-color:#ef3038}
+.support-ticket-detail>button{
+  display:flex;align-items:center;justify-content:center;min-height:50px;width:100%;
+  padding:14px 18px;border:1px solid #ef3038;border-radius:3px;
+  background:linear-gradient(110deg,#f13b43,#bd2029);color:#fff;
+  font:900 10px Inter,Arial;letter-spacing:1.5px;cursor:pointer;
+  box-shadow:0 8px 24px #ef303825;transition:transform .18s,box-shadow .18s;
+}
+.support-ticket-detail>button:hover{transform:translateY(-1px);box-shadow:0 12px 28px #ef30383a}
+.support-ticket-detail>button:disabled{opacity:.55;cursor:wait;transform:none}
+.support-detail-head{padding-bottom:13px;border-bottom:1px solid #ffffff18}
+.support-detail-head>span{font-weight:900}
+.support-detail-head small{font-size:9px}
+@media(max-width:760px){
+  .support-admin-layout{grid-template-columns:minmax(0,1fr);gap:12px}
+  .support-ticket-detail{padding:18px}
+  .support-ticket-detail .support-message-content{padding:15px}
+  .support-ticket-detail>h2{font-size:32px}
+  .support-admin-toolbar>div{flex-wrap:wrap;gap:9px 14px}
+}
