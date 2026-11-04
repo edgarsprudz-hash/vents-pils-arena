@@ -32,3 +32,14 @@
 .matchCard strong i{color:#ef3038;font-size:10px;font-style:normal}
 .matchCard span{color:#ff686f;font-size:9px;font-weight:900;letter-spacing:1px}
 @media(max-width:600px){.section{padding:20px 16px;margin-top:24px}.headingRow{align-items:flex-start}.card{padding:16px}.meta{grid-template-columns:1fr}}
+
+.matchTop{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.matchTop small{color:#999;font-size:9px;font-weight:800;letter-spacing:1px}
+.matchTop b{padding:6px 8px;background:#24262c;color:#c8c8c8;font-size:8px;letter-spacing:.8px}
+.matchTop .liveStatus{background:#3b171b;color:#ff777d}
+.matchMeta{display:flex;gap:14px;flex-wrap:wrap;padding:12px 0;border-top:1px solid #292b31;border-bottom:1px solid #292b31}
+.matchMeta span{color:#ddd;font-size:11px}
+.matchMeta i{display:block;margin-bottom:4px;color:#777;font-size:8px;font-style:normal;font-weight:800;letter-spacing:1px}
+.roomButton{display:flex;justify-content:center;align-items:center;min-height:42px;padding:10px 14px;background:#ef3038;color:#fff;text-decoration:none;text-align:center;font-size:9px;font-weight:950;letter-spacing:1px;transition:background .2s}
+.roomButton:hover{background:#c9232b}
+.roomMissing{color:#888;font-size:9px;font-weight:800;letter-spacing:.8px}
