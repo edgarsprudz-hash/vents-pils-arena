@@ -56,15 +56,32 @@ export default function CommunityPage() {
     already: "A request or invitation already exists.", active: "ACTIVE", emptySearch: "Enter a nickname to search."
   };
 
-  const [userId, setUserId] = useState("");
+  const codeLabels = ru ? {
+    heading: "ДОБАВИТЬ ПО КОДУ ДРУГА", yourCode: "ТВОЙ КОД ДРУГА", copy: "КОПИРОВАТЬ",
+    share: "Отправь этот код человеку, чтобы он мог найти тебя.", enterCode: "ВВЕДИ 8-СИМВОЛЬНЫЙ КОД",
+    find: "НАЙТИ", add: "+ ДОБАВИТЬ", empty: "Введи код друга.", error: "Не удалось найти пользователя.",
+    notFound: "Пользователь с таким кодом не найден.", alreadyFriend: "Вы уже друзья.", pending: "Запрос в друзья уже существует.", copied: "Код скопирован."
+  } : lv ? {
+    heading: "PIEVIENOT PĒC DRAUGA KODA", yourCode: "TAVS DRAUGA KODS", copy: "KOPĒT",
+    share: "Nosūti šo kodu, lai cits spēlētājs varētu tevi atrast.", enterCode: "IEVADI 8 ZĪMJU KODU",
+    find: "MEKLĒT", add: "+ PIEVIENOT", empty: "Ievadi drauga kodu.", error: "Neizdevās atrast spēlētāju.",
+    notFound: "Spēlētājs ar šādu kodu nav atrasts.", alreadyFriend: "Jūs jau esat draugi.", pending: "Draudzības pieprasījums jau pastāv.", copied: "Kods nokopēts."
+  } : {
+    heading: "ADD A FRIEND BY CODE", yourCode: "YOUR FRIEND CODE", copy: "COPY",
+    share: "Share this code so another player can find you.", enterCode: "ENTER 8-CHARACTER CODE",
+    find: "FIND PLAYER", add: "+ ADD FRIEND", empty: "Enter a friend code.", error: "Could not find the player.",
+    notFound: "No player found with that code.", alreadyFriend: "You are already friends.", pending: "A friend request already exists.", copied: "Code copied."
+  };
+\n  const [userId, setUserId] = useState("");
   const [profile, setProfile] = useState<Player | null>(null);
   const [requests, setRequests] = useState<FriendRequest[]>([]);
   const [players, setPlayers] = useState<Record<string, Player>>({});
   const [teams, setTeams] = useState<Team[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [teamInvites, setTeamInvites] = useState<{ member: Member; team: Team }[]>([]);
-  const [search, setSearch] = useState("");
-  const [results, setResults] = useState<Player[]>([]);
+  const [friendCode, setFriendCode] = useState("");
+  const [friendCodeInput, setFriendCodeInput] = useState("");
+  const [codeResult, setCodeResult] = useState<Player | null>(null);
   const [teamName, setTeamName] = useState("");
   const [inviteFor, setInviteFor] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
@@ -76,15 +93,15 @@ export default function CommunityPage() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { setLoading(false); return; }
     setUserId(session.user.id);
-    const { data: suggestedPlayers } = await supabase.from("player_directory").select("id,nickname,display_name").neq("id", session.user.id).order("nickname").limit(12);
-    setResults((suggestedPlayers || []) as Player[]);
-    const [{ data: me }, { data: reqs }, { data: ownTeams }, { data: invites }] = await Promise.all([
-      supabase.from("player_directory").select("id,nickname,display_name").eq("id", session.user.id).maybeSingle(),
+    const [{ data: me }, { data: ownCode }, { data: reqs }, { data: ownTeams }, { data: invites }] = await Promise.all([
+      supabase.rpc("get_arena_player_profiles", { p_user_ids: [session.user.id] }),
+      supabase.rpc("get_my_arena_friend_code"),
       supabase.from("friend_requests").select("id,requester_id,addressee_id,status").or("requester_id.eq." + session.user.id + ",addressee_id.eq." + session.user.id),
       supabase.from("arena_teams").select("id,name,owner_id").eq("owner_id", session.user.id).order("created_at"),
       supabase.from("arena_team_members").select("team_id,user_id,role,status,invited_by").eq("user_id", session.user.id).eq("status", "INVITED")
     ]);
-    setProfile(me as Player | null);
+    setProfile(((me || [])[0] || null) as Player | null);
+    setFriendCode((ownCode || "") as string);
     setRequests((reqs || []) as FriendRequest[]);
     setTeams((ownTeams || []) as Team[]);
     const ownTeamIds = (ownTeams || []).map((team: Team) => team.id);
@@ -105,7 +122,7 @@ export default function CommunityPage() {
       ...(teamMembers || []).map((m: Member) => m.user_id),
       ...(invites || []).map((m: any) => m.invited_by)
     ]));
-    const { data: friendProfiles } = playerIds.length ? await supabase.from("player_directory").select("id,nickname,display_name").in("id", playerIds) : { data: [] as Player[] };
+    const { data: friendProfiles } = playerIds.length ? await supabase.rpc("get_arena_player_profiles", { p_user_ids: playerIds }) : { data: [] as Player[] };
     const directory: Record<string, Player> = {};
     (friendProfiles || []).forEach((p: Player) => { directory[p.id] = p; });
     setPlayers(directory);
@@ -115,13 +132,21 @@ export default function CommunityPage() {
 
   useEffect(() => { load(); }, []);
 
-  async function searchPlayers(e: FormEvent) {
+  async function findFriendByCode(e: FormEvent) {
     e.preventDefault();
-    if (!supabase || !search.trim()) { setMessage(t.emptySearch); return; }
-    setBusy(true); setMessage("");
-    const { data, error } = await supabase.from("player_directory").select("id,nickname,display_name").ilike("nickname", "%" + search.trim() + "%").neq("id", userId).limit(12);
-    if (error) setMessage(error.message);
-    else setResults((data || []) as Player[]);
+    if (!supabase || !friendCodeInput.trim()) { setMessage(codeLabels.empty); return; }
+    setBusy(true); setMessage(""); setCodeResult(null);
+    const { data, error } = await supabase.rpc("find_arena_player_by_friend_code", { p_code: friendCodeInput.trim().toUpperCase() });
+    if (error) setMessage(codeLabels.error);
+    else if (!data?.length) setMessage(codeLabels.notFound);
+    else {
+      const player = data[0] as Player;
+      setCodeResult(player);
+      const { data: existing } = await supabase.from("friend_requests").select("id,requester_id,addressee_id,status")
+        .or("and(requester_id.eq." + userId + ",addressee_id.eq." + player.id + "),and(requester_id.eq." + player.id + ",addressee_id.eq." + userId + ")").maybeSingle();
+      if (existing?.status === "ACCEPTED") setMessage(codeLabels.alreadyFriend);
+      else if (existing?.status === "PENDING") setMessage(codeLabels.pending);
+    }
     setBusy(false);
   }
 
@@ -188,9 +213,21 @@ export default function CommunityPage() {
     <header className={styles.hero}><span>PLAYER NETWORK / VENTSPILS ARENA</span><h1>{t.title}<i>.</i></h1><p>{t.desc}</p></header>
     {message && <p className={styles.message} role="status">{message}</p>}
     <section className={styles.panel}>
-      <div className={styles.panelTitle}><span>01 / PLAYER NETWORK</span><h2>{t.search}</h2></div>
-      <form className={styles.search} onSubmit={searchPlayers}><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t.searchHint}/><button disabled={busy}>{busy ? "..." : t.find}</button></form>
-      {results.length>0 ? <div className={styles.people}>{results.map(p=><article className={styles.person} key={p.id}><div className={styles.avatar}>{(p.nickname||"P").slice(0,1).toUpperCase()}</div><div><strong>{p.nickname}</strong><small>{p.display_name || "VENTSPILS ARENA PLAYER"}</small></div><button disabled={busy || requests.some(r => (r.requester_id===userId&&r.addressee_id===p.id)||(r.requester_id===p.id&&r.addressee_id===userId))} onClick={()=>sendRequest(p.id)}>+ ADD FRIEND</button></article>)}</div> : <p className={styles.empty}>{t.emptySearch}</p>}
+      <div className={styles.panelTitle}><span>01 / PLAYER NETWORK</span><h2>{codeLabels.heading}</h2></div>
+      <div className={styles.friendCodeBox}>
+        <span className={styles.codeLabel}>{codeLabels.yourCode}</span>
+        <div className={styles.codeRow}><strong>{friendCode || "— — — — — — — —"}</strong><button type="button" onClick={() => { void navigator.clipboard.writeText(friendCode); setMessage(codeLabels.copied); }} disabled={!friendCode}>{codeLabels.copy}</button></div>
+        <p className={styles.muted}>{codeLabels.share}</p>
+      </div>
+      <form className={styles.search} onSubmit={findFriendByCode}>
+        <input value={friendCodeInput} onChange={e=>setFriendCodeInput(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0,8))} maxLength={8} placeholder={codeLabels.enterCode} autoCapitalize="characters"/>
+        <button disabled={busy || friendCodeInput.length !== 8}>{busy ? "..." : codeLabels.find}</button>
+      </form>
+      {codeResult && <article className={styles.person}>
+        <div className={styles.avatar}>{(codeResult.nickname||"P").slice(0,1).toUpperCase()}</div>
+        <div><strong>{codeResult.nickname}</strong><small>{codeResult.display_name || "VENTSPILS ARENA PLAYER"}</small></div>
+        <button disabled={busy || requests.some(r => (r.requester_id===userId&&r.addressee_id===codeResult.id)||(r.requester_id===codeResult.id&&r.addressee_id===userId))} onClick={()=>sendRequest(codeResult.id)}>{codeLabels.add}</button>
+      </article>}
     </section>
 
     <div className={styles.columns}>
