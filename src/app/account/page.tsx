@@ -34,6 +34,7 @@ export default function AccountPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [friendCode, setFriendCode] = useState("");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
@@ -49,6 +50,8 @@ export default function AccountPage() {
       else if (params.get("steam") === "linked") setMessage("Steam account connected successfully.");
       const { data } = await supabase.from("profiles").select("nickname, display_name, role, steam_id").eq("id", session.user.id).maybeSingle();
       setProfile(data);
+      const { data: ownCode } = await supabase.rpc("get_my_arena_friend_code");
+      setFriendCode((ownCode || "") as string);
       setLoading(false);
     }
     load();
@@ -78,6 +81,16 @@ export default function AccountPage() {
             <div><span>{tr.display}</span><strong>{profile?.display_name || tr.notset}</strong></div>
             <div><span>{tr.type}</span><strong>{profile?.role || tr.player}</strong></div>
           </div>
+        </section>
+        <section style={{border:"1px solid #373941",background:"linear-gradient(145deg,#191b21,#101115)",padding:"20px 24px",marginBottom:18}}>
+          <div style={{fontSize:10,letterSpacing:2,color:"#aaa",fontWeight:800,marginBottom:10}}>{language === "ru" ? "ТВОЙ КОД ДРУГА" : language === "lv" ? "TAVS DRAUGA KODS" : "YOUR FRIEND CODE"}</div>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}>
+            <strong style={{fontSize:28,letterSpacing:5,color:"#fff"}}>{friendCode || "— — — — — — — —"}</strong>
+            <button type="button" disabled={!friendCode} onClick={() => { void navigator.clipboard.writeText(friendCode); setMessage(language === "ru" ? "Код скопирован." : language === "lv" ? "Kods nokopēts." : "Code copied."); }} style={{border:0,background:"#ef3038",color:"#fff",padding:"12px 18px",fontWeight:800,cursor:"pointer"}}>
+              {language === "ru" ? "КОПИРОВАТЬ" : language === "lv" ? "KOPĒT" : "COPY CODE"}
+            </button>
+          </div>
+          <p style={{fontSize:11,color:"#999",margin:"10px 0 0"}}>{language === "ru" ? "Поделись кодом, чтобы другие игроки могли добавить тебя в друзья." : language === "lv" ? "Dalies ar kodu, lai citi spēlētāji varētu pievienot tevi draugiem." : "Share this code so other players can add you as a friend."}</p>
         </section>
         <section className="account-actions">
           <div><span className="account-kicker">{tr.space}</span><h3>{tr.ready}</h3><p>{tr.spaceText}</p></div>
