@@ -72,7 +72,8 @@ export default function CommunityPage() {
     find: "FIND PLAYER", add: "+ ADD FRIEND", empty: "Enter a friend code.", error: "Could not find the player.",
     notFound: "No player found with that code.", alreadyFriend: "You are already friends.", pending: "A friend request already exists.", copied: "Code copied."
   };
-\n  const [userId, setUserId] = useState("");
+
+  const [userId, setUserId] = useState("");
   const [profile, setProfile] = useState<Player | null>(null);
   const [requests, setRequests] = useState<FriendRequest[]>([]);
   const [players, setPlayers] = useState<Record<string, Player>>({});
