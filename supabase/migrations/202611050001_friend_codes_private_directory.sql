@@ -15,7 +15,7 @@ declare
 begin
   if new.friend_code is null or length(trim(new.friend_code)) = 0 then
     loop
-      candidate := upper(substr(encode(gen_random_bytes(8), 'hex'), 1, 8));
+      candidate := upper(substr(md5(gen_random_uuid()::text), 1, 8));
       exit when not exists (
         select 1 from public.profiles p where p.friend_code = candidate
       );
@@ -32,7 +32,7 @@ before insert or update of friend_code on public.profiles
 for each row execute function public.assign_arena_friend_code();
 
 update public.profiles
-set friend_code = upper(substr(encode(gen_random_bytes(8), 'hex'), 1, 8))
+set friend_code = upper(substr(md5(gen_random_uuid()::text), 1, 8))
 where friend_code is null or length(trim(friend_code)) = 0;
 
 create unique index if not exists profiles_friend_code_uidx
