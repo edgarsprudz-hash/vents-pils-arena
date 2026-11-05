@@ -13,6 +13,11 @@ as $$
 declare
   candidate text;
 begin
+  if tg_op = 'UPDATE'
+     and old.friend_code is not null
+     and new.friend_code is distinct from old.friend_code then
+    raise exception 'Friend codes cannot be changed';
+  end if;
   if new.friend_code is null or length(trim(new.friend_code)) = 0 then
     loop
       candidate := upper(substr(md5(gen_random_uuid()::text), 1, 8));
