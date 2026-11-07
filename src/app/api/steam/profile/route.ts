@@ -1,23 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { resolveSteamProfile } from "../../../../lib/steam";
 
 export async function GET(req: NextRequest) {
+  const profileUrl = req.nextUrl.searchParams.get("profileUrl");
+  if (profileUrl) {
+    const resolved = await resolveSteamProfile(profileUrl);
+    if (!resolved) return NextResponse.json({ error: "Steam profile could not be resolved." }, { status: 404 });
+    return NextResponse.json(resolved, { headers: { "Cache-Control": "no-store" } });
+  }
   const steamId = req.nextUrl.searchParams.get("steamId") || "";
-  if (!/^[0-9]{17}$/.test(steamId)) {
-    return NextResponse.json({ error: "Invalid Steam ID." }, { status: 400 });
-  }
-
-  try {
-    const response = await fetch(`https://steamcommunity.com/profiles/${steamId}/?xml=1`, {
-      headers: { "user-agent": "VENTSPILS ARENA profile lookup" },
-      cache: "no-store",
-    });
-    if (!response.ok) return NextResponse.json({ name: null });
-    const xml = await response.text();
-    const match = xml.match(/<steamID><!\[CDATA\[(.*?)\]\]><\/steamID>/i)
-      || xml.match(/<steamID>(.*?)<\/steamID>/i);
-    const name = match?.[1]?.trim() || null;
-    return NextResponse.json({ name }, { headers: { "Cache-Control": "no-store" } });
-  } catch {
-    return NextResponse.json({ name: null });
-  }
+  if (!/^[0-9]{17}$/.test(steamId)) return NextResponse.json({ error: "Invalid Steam ID." }, { status: 400 });
+  const resolved = await resolveSteamProfile(`https://steamcommunity.com/profiles/${steamId}/`);
+  return NextResponse.json(resolved || { steamId64: steamId, name: null, profileUrl: `https://steamcommunity.com/profiles/${steamId}/` }, { headers: { "Cache-Control": "no-store" } });
 }
