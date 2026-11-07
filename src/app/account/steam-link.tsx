@@ -36,7 +36,7 @@ export default function SteamLink({ steamId: initialSteamId }: Props) {
     window.location.assign(data.url);
   }
 
-  async function linkByUrl() {
+  async function unlink() {\n    if (!supabase || !window.confirm("Unlink this Steam account from your VENTSPILS ARENA profile?")) return;\n    setBusy(true); setError(""); setSuccess("");\n    const { data: { session } } = await supabase.auth.getSession();\n    if (!session) { setError("Sign in again."); setBusy(false); return; }\n    const response = await fetch("/api/steam/unlink", { method: "POST", headers: { authorization: "Bearer " + session.access_token } });\n    const data = await response.json(); setBusy(false);\n    if (!response.ok) { setError(data.error || "Could not unlink Steam account."); return; }\n    setSteamId(""); setSteamName(""); setProfileUrl("");\n    setSuccess("Steam account unlinked. You can connect another profile at any time.");\n  }\n\n  async function linkByUrl() {
     if (!supabase) return;
     setBusy(true); setError(""); setSuccess("");
     const { data: { session } } = await supabase.auth.getSession();
@@ -71,7 +71,7 @@ export default function SteamLink({ steamId: initialSteamId }: Props) {
           </div>}
         </div>
       </div>
-      {!steamId && <div style={{position:"relative",zIndex:1,padding:"0 21px 22px",display:"grid",gap:12}}>
+      {steamId && <div style={{position:"relative",zIndex:1,padding:"0 21px 22px"}}><button type="button" className={styles.button} onClick={unlink} disabled={busy}>{busy ? "PLEASE WAIT..." : "UNLINK STEAM ACCOUNT"}</button></div>}\n      {!steamId && <div style={{position:"relative",zIndex:1,padding:"0 21px 22px",display:"grid",gap:12}}>
         <button className={styles.button} onClick={link} disabled={busy}>
           <span className={styles.buttonIcon}>S</span><span>{busy ? "PLEASE WAIT..." : "CONNECT WITH STEAM"}</span><span className={styles.arrow}>↗</span>
         </button>
