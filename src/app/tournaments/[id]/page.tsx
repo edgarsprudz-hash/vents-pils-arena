@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
 type Tournament = { id:string; title:string; game:string; description:string; event_date:string|null; location:string; status:string; format:string };
-type Player = { nickname:string; steam:string };
+type Player = { nickname:string; steam:string; steamId64?:string };
 type SavedTeam = { id:string; name:string };
 type DirectoryPlayer = { id:string; nickname:string; display_name:string|null; steam_id?:string|null };
 type Team = { id:string; team_name:string; captain_name:string; roster:Player[]; created_at:string; status:string };
@@ -23,6 +23,7 @@ export default function TournamentDetailsPage(){
   const [teams,setTeams]=useState<Team[]>([]);
   const [savedTeams,setSavedTeams]=useState<SavedTeam[]>([]);
   const [selectedTeamId,setSelectedTeamId]=useState("");
+  const [profileSteamId,setProfileSteamId]=useState("");
   const [bracket,setBracket]=useState<PublicMatch[]>([]);
 
   async function loadTeams(id:string){
@@ -41,6 +42,8 @@ export default function TournamentDetailsPage(){
     if(error||!data){setMessage(error?.message||"Tournament not found.");setLoading(false);return;}
     setItem(data);setSignedIn(!!session);
     if(session){
+      const {data:ownProfile}=await supabase.from("profiles").select("steam_id").eq("id",session.user.id).maybeSingle();
+      if(active)setProfileSteamId(ownProfile?.steam_id||"");
       const {data:ownedTeams}=await supabase.from("arena_teams").select("id,name").eq("owner_id",session.user.id).order("created_at");
       if(active)setSavedTeams((ownedTeams||[]) as SavedTeam[]);
       const {data:reg,error:regError}=await supabase.from("tournament_registrations").select("id,status").eq("tournament_id",params.id).eq("user_id",session.user.id).in("status",["PENDING","REGISTERED"]).maybeSingle();
@@ -85,10 +88,26 @@ export default function TournamentDetailsPage(){
       catch{return true;}
     });
     if(invalidSteam){setMessage("A valid Steam profile link is required for every player. Use steamcommunity.com/id/... or steamcommunity.com/profiles/....");return;}
+    if(!profileSteamId){setMessage("Link your Steam account in your personal cabinet before registering a team.");return;}
     setBusy(true);setMessage("");
+    const resolvedRoster=await Promise.all(clean.map(async player=>{
+      const response=await fetch("/api/steam/profile?profileUrl="+encodeURIComponent(player.steam),{cache:"no-store"});
+      if(!response.ok)return null;
+      const data=await response.json();
+      return {...player,steamId64:data.steamId64 as string};
+    }));
+    if(resolvedRoster.some(player=>!player?.steamId64)){
+      setMessage("One or more Steam profile links could not be verified. Check that every link is public and correct.");
+      setBusy(false);return;
+    }
+    const captainPlayer=resolvedRoster.find(player=>player?.nickname.toLowerCase()===captain.trim().toLowerCase());
+    if(!captainPlayer || captainPlayer.steamId64!==profileSteamId){
+      setMessage("The captain's Steam profile link must match the Steam account linked in your VENTSPILS ARENA personal cabinet.");
+      setBusy(false);return;
+    }
     const {error}=await supabase.from("tournament_registrations").insert({
       tournament_id:item.id,user_id:session.user.id,status:"PENDING",
-      team_name:teamName.trim(),captain_name:captain.trim(),roster:clean,arena_team_id:selectedTeamId||null
+      team_name:teamName.trim(),captain_name:captain.trim(),roster:resolvedRoster,arena_team_id:selectedTeamId||null
     });
     if(error){setMessage(error.code==="23505"?"Your account already has a registration for this tournament.":error.message);}
     else{setRegistered(true);setShowForm(false);setMessage("Team registration submitted successfully.");await loadTeams(item.id);}
