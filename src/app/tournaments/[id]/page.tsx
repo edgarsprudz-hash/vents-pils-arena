@@ -94,7 +94,7 @@ export default function TournamentDetailsPage(){
       const response=await fetch("/api/steam/profile?profileUrl="+encodeURIComponent(player.steam),{cache:"no-store"});
       if(!response.ok)return null;
       const data=await response.json();
-      return {...player,steamId64:data.steamId64 as string};
+      return {...player,steam:"https://steamcommunity.com/profiles/"+data.steamId64+"/",steamId64:data.steamId64 as string};
     }));
     if(resolvedRoster.some(player=>!player?.steamId64)){
       setMessage("One or more Steam profile links could not be verified. Check that every link is public and correct.");
