@@ -139,7 +139,8 @@ export default function TournamentDetailsPage(){
   if(loading)return <main className="tournament-detail"><div className="tournament-detail-shell"><p className="detail-loading">LOADING TOURNAMENT...</p></div></main>;
   if(!item)return <main className="tournament-detail"><div className="tournament-detail-shell"><Link className="detail-back" href="/tournaments">← ALL TOURNAMENTS</Link><h1>NOT FOUND<span>.</span></h1><p className="detail-message">{message}</p></div></main>;
   const open=item.status==="REGISTRATION";
-  const isCS2=item.game==="CS2";\n  const maxPlayers = isCS2 ? Math.min(5, Math.max(1, Number.parseInt(item.format, 10) || 5)) : 1;
+  const isCS2=item.game==="CS2";
+  const maxPlayers = isCS2 ? Math.min(5, Math.max(1, Number.parseInt(item.format, 10) || 5)) : 1;
   const date=item.event_date?new Date(item.event_date).toLocaleString("en-GB",{dateStyle:"long",timeStyle:"short"}):"TO BE ANNOUNCED";
   return <main className="tournament-detail"><div className="tournament-detail-shell">
     <div className="detail-topline"><Link className="detail-back" href="/tournaments">← ALL TOURNAMENTS</Link><span>VENTSPILS ARENA <b>/</b> TOURNAMENTS</span></div>
