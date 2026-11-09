@@ -114,10 +114,6 @@ export default function TournamentDetailsPage(){
       }
       resolvedRoster=verified;
     } else {
-      if(clean[0].nickname.toLowerCase()!==captain.trim().toLowerCase()){
-        setMessage("The registered player must be the captain for a 1v1 tournament.");
-        setBusy(false);return;
-      }
       resolvedRoster=clean.map(({nickname,clashRoyaleTag})=>({nickname,clashRoyaleTag}));
     }
     const {error}=await supabase.from("tournament_registrations").insert({
