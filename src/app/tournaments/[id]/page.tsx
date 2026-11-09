@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
 type Tournament = { id:string; title:string; game:string; description:string; event_date:string|null; location:string; status:string; format:string };
-type Player = { nickname:string; steam:string; steamId64?:string };
+type Player = { nickname:string; steam:string; steamId64?:string; clashRoyaleTag?:string };
 type SavedTeam = { id:string; name:string };
 type DirectoryPlayer = { id:string; nickname:string; display_name:string|null; steam_id?:string|null };
 type Team = { id:string; team_name:string; captain_name:string; roster:Player[]; created_at:string; status:string };
@@ -19,7 +19,7 @@ export default function TournamentDetailsPage(){
   const [message,setMessage]=useState(""); const [signedIn,setSignedIn]=useState(false);
   const [dbReady,setDbReady]=useState(true); const [showForm,setShowForm]=useState(false);
   const [teamName,setTeamName]=useState(""); const [captain,setCaptain]=useState("");
-  const [players,setPlayers]=useState<Player[]>([{nickname:"",steam:""}]);
+  const [players,setPlayers]=useState<Player[]>([{nickname:"",steam:"",clashRoyaleTag:""}]);
   const [teams,setTeams]=useState<Team[]>([]);
   const [savedTeams,setSavedTeams]=useState<SavedTeam[]>([]);
   const [selectedTeamId,setSelectedTeamId]=useState("");
@@ -59,7 +59,7 @@ export default function TournamentDetailsPage(){
   }
   async function selectSavedTeam(teamId:string){
     setSelectedTeamId(teamId);
-    if(!teamId){setTeamName("");setCaptain("");setPlayers([{nickname:"",steam:""}]);return;}
+    if(!teamId){setTeamName("");setCaptain("");setPlayers([{nickname:"",steam:"",clashRoyaleTag:""}]);return;}
     if(!supabase)return;
     const saved=savedTeams.find(team=>team.id===teamId);if(!saved)return;
     const {data:{session}}=await supabase.auth.getSession();if(!session)return;
@@ -80,34 +80,45 @@ export default function TournamentDetailsPage(){
     e.preventDefault(); if(!supabase||!item)return;
     const {data:{session}}=await supabase.auth.getSession();
     if(!session){router.push("/login");return;}
-    const clean=players.map(p=>({nickname:p.nickname.trim(),steam:p.steam.trim()}));
+    const isCS2=item.game==="CS2";
+    const clean=players.map(p=>({nickname:p.nickname.trim(),steam:p.steam.trim(),clashRoyaleTag:(p.clashRoyaleTag||"").trim().toUpperCase()}));
     if(clean.some(p=>!p.nickname)){setMessage("Enter a nickname for every player.");return;}
-    const invalidSteam=clean.some(p=>{
-      if(!p.steam)return true;
-      try{const url=new URL(p.steam);return url.protocol!=="https:" || !["steamcommunity.com","www.steamcommunity.com"].includes(url.hostname.toLowerCase()) || !/^\/(id|profiles)\/[^/]+\/?$/i.test(url.pathname);}
-      catch{return true;}
-    });
-    if(invalidSteam){setMessage("A valid Steam profile link is required for every player. Use steamcommunity.com/id/... or steamcommunity.com/profiles/....");return;}
-    if(!profileSteamId){setMessage("Link your Steam account in your personal cabinet before registering a team.");return;}
-    setBusy(true);setMessage("");
-    const resolvedRoster=await Promise.all(clean.map(async player=>{
-      const response=await fetch("/api/steam/profile?profileUrl="+encodeURIComponent(player.steam),{cache:"no-store"});
-      if(!response.ok)return null;
-      const data=await response.json();
-      return {...player,steam:"https://steamcommunity.com/profiles/"+data.steamId64+"/",steamId64:data.steamId64 as string};
-    }));
-    if(resolvedRoster.some(player=>!player?.steamId64)){
-      setMessage("One or more Steam profile links could not be verified. Check that every link is public and correct.");
-      setBusy(false);return;
+    if(isCS2){
+      const invalidSteam=clean.some(p=>{
+        if(!p.steam)return true;
+        try{const url=new URL(p.steam);return url.protocol!=="https:" || !["steamcommunity.com","www.steamcommunity.com"].includes(url.hostname.toLowerCase()) || !/^\/(id|profiles)\/[^/]+\/?$/i.test(url.pathname);}
+        catch{return true;}
+      });
+      if(invalidSteam){setMessage("A valid Steam profile link is required for every CS2 player.");return;}
+      if(!profileSteamId){setMessage("Link your Steam account in your personal cabinet before registering a CS2 team.");return;}
+    } else if(clean.length!==1 || !/^#[A-Z0-9]{3,15}$/.test(clean[0].clashRoyaleTag)){
+      setMessage("Enter the player's Clash Royale tag in the format #ABC123.");return;
     }
-    const captainPlayer=resolvedRoster.find(player=>player?.nickname.toLowerCase()===captain.trim().toLowerCase());
-    if(!captainPlayer || captainPlayer.steamId64!==profileSteamId){
-      setMessage("The captain's Steam profile link must match the Steam account linked in your VENTSPILS ARENA personal cabinet.");
-      setBusy(false);return;
+    setBusy(true);setMessage("");
+    let resolvedRoster:any[];
+    if(isCS2){
+      const verified=await Promise.all(clean.map(async player=>{
+        const response=await fetch("/api/steam/profile?profileUrl="+encodeURIComponent(player.steam),{cache:"no-store"});
+        if(!response.ok)return null;
+        const data=await response.json();
+        return {...player,steam:"https://steamcommunity.com/profiles/"+data.steamId64+"/",steamId64:data.steamId64 as string};
+      }));
+      if(verified.some(player=>!player?.steamId64)){
+        setMessage("One or more Steam profile links could not be verified. Check that every link is public and correct.");
+        setBusy(false);return;
+      }
+      const captainPlayer=verified.find(player=>player?.nickname.toLowerCase()===captain.trim().toLowerCase());
+      if(!captainPlayer || captainPlayer.steamId64!==profileSteamId){
+        setMessage("The captain's Steam profile link must match the Steam account linked to your VENTSPILS ARENA account.");
+        setBusy(false);return;
+      }
+      resolvedRoster=verified;
+    } else {
+      resolvedRoster=clean.map(({nickname,clashRoyaleTag})=>({nickname,clashRoyaleTag}));
     }
     const {error}=await supabase.from("tournament_registrations").insert({
       tournament_id:item.id,user_id:session.user.id,status:"PENDING",
-      team_name:teamName.trim(),captain_name:captain.trim(),roster:resolvedRoster,arena_team_id:selectedTeamId||null
+      team_name:isCS2?teamName.trim():clean[0].nickname,captain_name:isCS2?captain.trim():clean[0].nickname,roster:resolvedRoster,arena_team_id:isCS2?(selectedTeamId||null):null
     });
     if(error){setMessage(error.code==="23505"?"Your account already has a registration for this tournament.":error.message);}
     else{setRegistered(true);setShowForm(false);setMessage("Team registration submitted successfully.");await loadTeams(item.id);}
@@ -124,7 +135,8 @@ export default function TournamentDetailsPage(){
   if(loading)return <main className="tournament-detail"><div className="tournament-detail-shell"><p className="detail-loading">LOADING TOURNAMENT...</p></div></main>;
   if(!item)return <main className="tournament-detail"><div className="tournament-detail-shell"><Link className="detail-back" href="/tournaments">← ALL TOURNAMENTS</Link><h1>NOT FOUND<span>.</span></h1><p className="detail-message">{message}</p></div></main>;
   const open=item.status==="REGISTRATION";
-  const maxPlayers = Math.min(5, Math.max(1, Number.parseInt(item.format, 10) || 5));
+  const isCS2=item.game==="CS2";
+  const maxPlayers = isCS2 ? Math.min(5, Math.max(1, Number.parseInt(item.format, 10) || 5)) : 1;
   const date=item.event_date?new Date(item.event_date).toLocaleString("en-GB",{dateStyle:"long",timeStyle:"short"}):"TO BE ANNOUNCED";
   return <main className="tournament-detail"><div className="tournament-detail-shell">
     <div className="detail-topline"><Link className="detail-back" href="/tournaments">← ALL TOURNAMENTS</Link><span>VENTSPILS ARENA <b>/</b> TOURNAMENTS</span></div>
@@ -138,15 +150,15 @@ export default function TournamentDetailsPage(){
       {!dbReady&&<span className="detail-note">DATABASE SETUP REQUIRED</span>}
     </aside></section>
     <section className="team-roster-section"><div className="detail-section-label">COMPETING TEAMS <i/></div><div className="team-roster-heading"><h2>REGISTERED <em>TEAMS.</em></h2><span>{teams.length.toString().padStart(2,"0")} TEAMS</span></div>{bracket.length>0&&<a className="detail-action bracket-view-button" href="#official-bracket">VIEW TOURNAMENT BRACKET ↗</a>}
-      {teams.length===0?<p className="team-empty">No teams have registered yet. Be the first to join the competition.</p>:<div className="team-grid">{teams.map((team,index)=><article className="team-card" key={team.id}><div className="team-card-top"><span>TEAM / {(index+1).toString().padStart(2,"0")}</span><b>{team.roster?.length||0} PLAYERS</b></div><div className={"team-status-badge "+(team.status==="REGISTERED"?"team-status-approved":"team-status-pending")}>{team.status==="REGISTERED"?"CONFIRMED":"AWAITING APPROVAL"}</div><h3>{team.team_name||"Unnamed team"}</h3><p className="team-captain">CAPTAIN · {team.captain_name||"—"}</p><div className="team-player-list">{(team.roster||[]).map((p,i)=><div key={i}><span>{String(i+1).padStart(2,"0")}</span><strong>{p.nickname}</strong>{p.steam&&<a href={p.steam.startsWith("http")?p.steam:"https://steamcommunity.com/profiles/"+p.steam} target="_blank" rel="noreferrer">STEAM ↗</a>}</div>)}</div></article>)}</div>}
+      {teams.length===0?<p className="team-empty">No teams have registered yet. Be the first to join the competition.</p>:<div className="team-grid">{teams.map((team,index)=><article className="team-card" key={team.id}><div className="team-card-top"><span>TEAM / {(index+1).toString().padStart(2,"0")}</span><b>{team.roster?.length||0} PLAYERS</b></div><div className={"team-status-badge "+(team.status==="REGISTERED"?"team-status-approved":"team-status-pending")}>{team.status==="REGISTERED"?"CONFIRMED":"AWAITING APPROVAL"}</div><h3>{team.team_name||"Unnamed team"}</h3><p className="team-captain">CAPTAIN · {team.captain_name||"—"}</p><div className="team-player-list">{(team.roster||[]).map((p,i)=><div key={i}><span>{String(i+1).padStart(2,"0")}</span><strong>{p.nickname}</strong>{p.steam&&<a href={p.steam.startsWith("http")?p.steam:"https://steamcommunity.com/profiles/"+p.steam} target="_blank" rel="noreferrer">STEAM ↗</a>}{p.clashRoyaleTag&&<span className="team-player-tag">{p.clashRoyaleTag}</span>}</div>)}</div></article>)}</div>}
     </section>
     {bracket.length>0&&<section className="public-bracket-section" id="official-bracket"><div className="detail-section-label">OFFICIAL PLAYOFFS <i/></div><div className="team-roster-heading"><h2>TOURNAMENT <em>BRACKET.</em></h2><span>SINGLE ELIMINATION</span></div><p className="public-bracket-intro">Follow every matchup, see completed results and track which teams advance to the final.</p><div className="public-bracket-board">{Array.from(new Set(bracket.map(m=>m.round_number))).sort((a,b)=>a-b).map(round=><section className="public-bracket-round" key={round}><h3>{round===Math.max(...bracket.map(m=>m.round_number))?"FINAL":round===Math.max(...bracket.map(m=>m.round_number))-1?"SEMI-FINALS":round===Math.max(...bracket.map(m=>m.round_number))-2?"QUARTER-FINALS":"ROUND "+round}</h3>{bracket.filter(m=>m.round_number===round).map(match=><article className="public-bracket-match" key={match.id}><div className="public-bracket-match-top"><span>MATCH {match.match_number}</span><b className={match.status==="LIVE"?"public-match-live":""}>{match.status==="LIVE"?"● LIVE":match.status==="COMPLETED"?"COMPLETED":"UPCOMING"}</b></div>{[match.team_a,match.team_b].map((team,index)=><div className={"public-bracket-team "+(team&&match.winner_team===team?"public-bracket-winner":"")} key={index}><span>{team||"WAITING FOR QUALIFIER"}</span>{team&&<strong className="public-bracket-score">{index===0?match.score_a??"—":match.score_b??"—"}</strong>}{team&&match.winner_team===team&&<b>WINNER</b>}</div>)}</article>)}</section>)}</div></section>}
     <div className="detail-bottom"><span>VENTSPILS ARENA <b>•</b> COMPETE • CONNECT • CONQUER</span><span>LATVIA / 2026</span></div>
-    {showForm&&<div className="team-modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setShowForm(false);}}><section className="team-modal" role="dialog" aria-modal="true" aria-labelledby="team-form-title"><button className="team-modal-close" onClick={()=>setShowForm(false)} aria-label="Close">×</button><span className="detail-section-label">VENTSPILS ARENA / ENTRY FORM</span><h2 id="team-form-title">TEAM <em>REGISTRATION.</em></h2><p className="team-modal-intro">This is a {item.format} tournament. You can register up to {maxPlayers} players. Your team will appear here after submission.</p>
-      <form onSubmit={submitRegistration} className="team-registration-form"><label>USE A SAVED TEAM (OPTIONAL)<select value={selectedTeamId} onChange={e=>void selectSavedTeam(e.target.value)}><option value="">CREATE A NEW TOURNAMENT ROSTER</option>{savedTeams.map(team=><option key={team.id} value={team.id}>{team.name}</option>)}</select></label><label>TEAM NAME<input required minLength={2} maxLength={40} disabled={!!selectedTeamId} value={teamName} onChange={e=>setTeamName(e.target.value)} placeholder="Enter team name"/></label><label>CAPTAIN NAME<input required maxLength={40} disabled={!!selectedTeamId} value={captain} onChange={e=>setCaptain(e.target.value)} placeholder="In-game nickname"/></label><div className="team-form-label">PLAYER ROSTER <span>{players.length}/${maxPlayers}</span></div>
-      {players.map((p,i)=><div className="team-player-fields" key={i}><label><span>PLAYER {i+1} NICKNAME</span><input required disabled={!!selectedTeamId} value={p.nickname} onChange={e=>updatePlayer(i,"nickname",e.target.value)} placeholder="In-game nickname"/></label><label><span>STEAM PROFILE URL <b>* REQUIRED</b></span><input required type="url" disabled={!!selectedTeamId} value={p.steam} onChange={e=>updatePlayer(i,"steam",e.target.value)} placeholder="https://steamcommunity.com/id/username"/></label>{players.length>1&&<button type="button" className="remove-player" onClick={()=>setPlayers(old=>old.filter((_,n)=>n!==i))}>REMOVE</button>}</div>)}
-      {!selectedTeamId&&players.length<maxPlayers&&<button type="button" className="add-player" onClick={()=>setPlayers(old=>old.length<maxPlayers?[...old,{nickname:"",steam:""}]:old)}>+ ADD PLAYER</button>}
-      {message&&<p className="detail-message" role="status">{message}</p>}<button className="detail-action" type="submit" disabled={busy}>{busy?"SUBMITTING...":"SUBMIT TEAM REGISTRATION ↗"}</button></form>
+    {showForm&&<div className="team-modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setShowForm(false);}}><section className="team-modal" role="dialog" aria-modal="true" aria-labelledby="team-form-title"><button className="team-modal-close" onClick={()=>setShowForm(false)} aria-label="Close">×</button><span className="detail-section-label">VENTSPILS ARENA / ENTRY FORM</span><h2 id="team-form-title">{isCS2?<>TEAM <em>REGISTRATION.</em></>:<>PLAYER <em>REGISTRATION.</em></>}</h2><p className="team-modal-intro">{isCS2?`This is a ${item.format} CS2 tournament. You can register up to ${maxPlayers} players.`:"Clash Royale tournaments are played 1v1. Register one player and provide their in-game tag."} Your entry will appear here after submission.</p>
+      <form onSubmit={submitRegistration} className="team-registration-form">{isCS2&&<label>USE A SAVED TEAM (OPTIONAL)<select value={selectedTeamId} onChange={e=>void selectSavedTeam(e.target.value)}><option value="">CREATE A NEW TOURNAMENT ROSTER</option>{savedTeams.map(team=><option key={team.id} value={team.id}>{team.name}</option>)}</select></label>}{isCS2&&<><label>TEAM NAME<input required minLength={2} maxLength={40} disabled={!!selectedTeamId} value={teamName} onChange={e=>setTeamName(e.target.value)} placeholder="Enter team name"/></label><label>CAPTAIN NAME<input required maxLength={40} disabled={!!selectedTeamId} value={captain} onChange={e=>setCaptain(e.target.value)} placeholder="In-game nickname"/></label></>}<div className="team-form-label">PLAYER ROSTER <span>{players.length}/${maxPlayers}</span></div>
+      {players.map((p,i)=><div className="team-player-fields" key={i}><label><span>PLAYER {i+1} NICKNAME</span><input required disabled={!!selectedTeamId} value={p.nickname} onChange={e=>updatePlayer(i,"nickname",e.target.value)} placeholder="In-game nickname"/></label>{isCS2?<label><span>STEAM PROFILE URL <b>* REQUIRED</b></span><input required type="url" disabled={!!selectedTeamId} value={p.steam} onChange={e=>updatePlayer(i,"steam",e.target.value)} placeholder="https://steamcommunity.com/id/username"/></label>:<label><span>CLASH ROYALE PLAYER TAG <b>* REQUIRED</b></span><input required value={p.clashRoyaleTag||""} onChange={e=>updatePlayer(i,"clashRoyaleTag",e.target.value)} placeholder="#ABC123" maxLength={16}/></label>}{players.length>1&&<button type="button" className="remove-player" onClick={()=>setPlayers(old=>old.filter((_,n)=>n!==i))}>REMOVE</button>}</div>)}
+      {!selectedTeamId&&players.length<maxPlayers&&<button type="button" className="add-player" onClick={()=>setPlayers(old=>old.length<maxPlayers?[...old,{nickname:"",steam:"",clashRoyaleTag:""}]:old)}>+ ADD PLAYER</button>}
+      {message&&<p className="detail-message" role="status">{message}</p>}<button className="detail-action" type="submit" disabled={busy}>{busy?"SUBMITTING...":isCS2?"SUBMIT TEAM REGISTRATION ↗":"SUBMIT PLAYER REGISTRATION ↗"}</button></form>
     </section></div>}
   </div></main>;
 }

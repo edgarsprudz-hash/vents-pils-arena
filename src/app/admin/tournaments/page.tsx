@@ -72,8 +72,8 @@ export default function AdminTournamentsPage() {
       <form className="admin-form" onSubmit={submit}>
         <label>TOURNAMENT NAME<input required value={form.title} onChange={e=>setForm({...form,title:e.target.value})} placeholder="e.g. VENTSPILS ARENA WINTER CUP"/></label>
         <div className="admin-form-grid">
-          <label>GAME<input required value={form.game} onChange={e=>setForm({...form,game:e.target.value})}/></label>
-          <label>TEAM FORMAT<select required value={form.format} onChange={e=>setForm({...form,format:e.target.value})}><option value="2v2">2 vs 2 — 2 players</option><option value="3v3">3 vs 3 — 3 players</option><option value="5v5">5 vs 5 — 5 players</option></select></label>
+          <label>GAME<select required value={form.game} onChange={e=>setForm({...form,game:e.target.value,format:e.target.value==="Clash Royale"?"1v1":"5v5"})}><option value="CS2">COUNTER-STRIKE 2</option><option value="Clash Royale">CLASH ROYALE</option></select></label>
+          <label>FORMAT<select required disabled={form.game==="Clash Royale"} value={form.game==="Clash Royale"?"1v1":form.format} onChange={e=>setForm({...form,format:e.target.value})}>{form.game==="Clash Royale"?<option value="1v1">1 vs 1 — 1 player</option>:<><option value="2v2">2 vs 2 — 2 players</option><option value="3v3">3 vs 3 — 3 players</option><option value="5v5">5 vs 5 — 5 players</option></>}</select></label>
           <label>DATE & TIME<input type="datetime-local" value={form.event_date} onChange={e=>setForm({...form,event_date:e.target.value})}/></label>
           <label>STATUS<select value={form.status} onChange={e=>setForm({...form,status:e.target.value})}><option value="DRAFT">DRAFT</option><option value="REGISTRATION">REGISTRATION</option><option value="LIVE">LIVE</option><option value="COMPLETED">COMPLETED</option><option value="CANCELLED">CANCELLED</option></select></label>
         </div>
