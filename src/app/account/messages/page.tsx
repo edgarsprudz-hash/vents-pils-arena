@@ -2,8 +2,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../../lib/supabase";
-import { useLanguage } from "../components/LanguageProvider";
+import { supabase } from "../../../lib/supabase";
+import { useLanguage } from "../../components/LanguageProvider";
 
 type Message = { id:string; subject:string; body:string; created_at:string; read_at:string|null; tournaments?:{title:string}|null };
 export default function MessagesPage(){
