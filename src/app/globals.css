@@ -377,3 +377,26 @@ main{width:100%;max-width:100%;min-width:0}
 .footer-brand-wordmark{display:grid;gap:2px;font:900 19px/1 'Inter',Arial,sans-serif;letter-spacing:2px;color:#f4f4f5}
 .footer-brand-wordmark strong{color:#ef3038;letter-spacing:5px}
 @media(max-width:620px){.footer-brand-wordmark{font-size:18px}}
+
+
+/* Homepage: prevent long Cyrillic hero headline from overflowing on phones */
+@media(max-width:700px){
+  .hero{padding:76px 7vw 58px;min-height:0;overflow:hidden}
+  .hero h1{font-size:clamp(40px,11.2vw,78px);line-height:.9;letter-spacing:-.025em;max-width:100%;overflow-wrap:normal;word-break:normal}
+  .hero h1 em{display:block;white-space:nowrap;max-width:100%;font-size:1em;letter-spacing:-.035em}
+  .hero small{display:block;font-size:9px;letter-spacing:1.2px;line-height:1.6;white-space:normal}
+  .hero p{font-size:15px;line-height:1.7;max-width:100%}
+  .hero label{margin-top:48px;font-size:8px;letter-spacing:1.4px;white-space:nowrap}
+}
+/* Keep language control as a compact vertical tab on the screen edge */
+.language-dock{position:fixed!important;right:0!important;left:auto!important;top:48%!important;bottom:auto!important;transform:translateY(-50%)!important;z-index:9999!important}
+.language-dock-trigger{width:36px;min-height:64px;border-right:0;border-radius:3px 0 0 3px;padding:8px 4px}
+.language-dock-menu{right:42px;top:50%;bottom:auto;transform:translateY(-50%)}
+@media(max-width:600px){
+  .language-dock{top:48%!important;right:0!important;bottom:auto!important}
+  .language-dock-trigger{width:32px;min-height:58px}
+  .language-dock-menu{right:37px;min-width:126px}
+  /* Legacy selector fallback: never render the old full-width bottom language bar */
+  .language-switcher,.lang-switcher{position:fixed!important;right:0!important;left:auto!important;top:48%!important;bottom:auto!important;transform:translateY(-50%)!important;display:flex!important;flex-direction:column!important;width:auto!important;max-width:max-content!important;z-index:9999!important}
+  .language-switcher button,.lang-switcher button{min-width:32px!important;padding:9px 7px!important}
+}
