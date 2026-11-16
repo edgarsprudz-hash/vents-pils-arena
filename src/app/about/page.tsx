@@ -34,7 +34,7 @@ export default function AboutPage() {
     <div className="about-shell">
       <Link className="about-back" href="/">{copy.back}</Link>
       <div className="about-hero">
-        <img className="about-logo" src="/vents-arena-logo.svg" alt="VENTSPILS ARENA" />
+        
         <span className="about-eyebrow">{copy.eyebrow}</span>
         <h1>{copy.title}<i>.</i></h1>
         <p className="about-intro">{copy.intro}</p>
