@@ -8,24 +8,24 @@ import SteamLink from "./steam-link";
 import MyMatches from "./matches";
 import { useLanguage } from "../components/LanguageProvider";
 
-type Profile = { nickname: string | null; display_name: string | null; role: string; steam_id?: string | null };
+type Profile = { nickname: string | null; display_name: string | null; role: string; steam_id?: string | null; avatar_url?: string | null };
 
 export default function AccountPage() {
   const {language}=useLanguage();
   const tr = language === "ru" ? {
-    loading: "ЗАГРУЗКА ПРОФИЛЯ ИГРОКА...", crumb: "ЛИЧНЫЙ КАБИНЕТ", heading: "ЛИЧНЫЙ", sub: "КАБИНЕТ.",
+    loading: "ЗАГРУЗКА ПРОФИЛЯ ИГРОКА...", avatar: "ФОТО ПРОФИЛЯ", upload: "ЗАГРУЗИТЬ ФОТО", change: "ИЗМЕНИТЬ ФОТО", remove: "УДАЛИТЬ ФОТО", avatarHint: "JPG, PNG или WEBP · до 5 МБ", crumb: "ЛИЧНЫЙ КАБИНЕТ", heading: "ЛИЧНЫЙ", sub: "КАБИНЕТ.",
     overview: "ОБЗОР АККАУНТА", active: "СЕАНС АКТИВЕН", welcome: "С ВОЗВРАЩЕНИЕМ", player: "ИГРОК",
     nickname: "НИКНЕЙМ ИГРОКА", display: "ОТОБРАЖАЕМОЕ ИМЯ", type: "ТИП АККАУНТА", notset: "НЕ УКАЗАНО",
     space: "ТВОЁ ПРОСТРАНСТВО", ready: "ГОТОВ К ИГРЕ?", spaceText: "Профиль игрока и аккаунт арены — в одном месте.",
     browse: "СМОТРЕТЬ ТУРНИРЫ", admin: "ПАНЕЛЬ АДМИНИСТРАТОРА", logout: "ВЫЙТИ"
   } : language === "lv" ? {
-    loading: "IELĀDĒ SPĒLĒTĀJA PROFILU...", crumb: "PERSONĪGAIS KABINETS", heading: "PERSONĪGAIS", sub: "KABINETS.",
+    loading: "IELĀDĒ SPĒLĒTĀJA PROFILU...", avatar: "PROFILA ATTĒLS", upload: "AUGŠUPIELĀDĒT", change: "MAINĪT ATTĒLU", remove: "NOŅEMT ATTĒLU", avatarHint: "JPG, PNG vai WEBP · līdz 5 MB", crumb: "PERSONĪGAIS KABINETS", heading: "PERSONĪGAIS", sub: "KABINETS.",
     overview: "KONTA PĀRSKATS", active: "SESIJA AKTĪVA", welcome: "LAIPNI ATGRIEZIES", player: "SPĒLĒTĀJS",
     nickname: "SPĒLĒTĀJA NIKS", display: "ATTĒLOTAIS VĀRDS", type: "KONTA TIPS", notset: "NAV IESTATĪTS",
     space: "TAVA TELPA", ready: "GATAVS SACENSTIES?", spaceText: "Tavs spēlētāja profils un arēnas konts vienuviet.",
     browse: "APSKATĪT TURNĪRUS", admin: "ADMINISTRĀCIJAS PANELIS", logout: "IZIET"
   } : {
-    loading: "LOADING PLAYER PROFILE...", crumb: "PERSONAL CABINET", heading: "PERSONAL", sub: "CABINET.",
+    loading: "LOADING PLAYER PROFILE...", avatar: "PROFILE PHOTO", upload: "UPLOAD PHOTO", change: "CHANGE PHOTO", remove: "REMOVE PHOTO", avatarHint: "JPG, PNG or WEBP · up to 5 MB", crumb: "PERSONAL CABINET", heading: "PERSONAL", sub: "CABINET.",
     overview: "ACCOUNT OVERVIEW", active: "ACTIVE SESSION", welcome: "WELCOME BACK", player: "PLAYER",
     nickname: "PLAYER NICKNAME", display: "DISPLAY NAME", type: "ACCOUNT TYPE", notset: "NOT SET",
     space: "YOUR SPACE", ready: "READY TO COMPETE?", spaceText: "Your player profile and arena account in one place.",
@@ -37,6 +37,8 @@ export default function AccountPage() {
   const [friendCode, setFriendCode] = useState("");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarBusy, setAvatarBusy] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -44,6 +46,7 @@ export default function AccountPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.replace("/login"); return; }
       setEmail(session.user.email ?? "");
+      setAvatarUrl((session.user.user_metadata?.avatar_url as string | undefined) ?? null);
       const params = new URLSearchParams(window.location.search);
       const steamError = params.get("steam_error");
       if (steamError) setMessage("STEAM: " + steamError);
@@ -56,6 +59,45 @@ export default function AccountPage() {
     }
     load();
   }, [router]);
+
+
+  async function uploadAvatar(file?: File) {
+    if (!file || !supabase) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setMessage(language === "ru" ? "Выбери JPG, PNG или WEBP." : language === "lv" ? "Izvēlies JPG, PNG vai WEBP." : "Choose a JPG, PNG or WEBP image.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage(language === "ru" ? "Размер файла не должен превышать 5 МБ." : language === "lv" ? "Faila izmērs nedrīkst pārsniegt 5 MB." : "The file must be 5 MB or smaller.");
+      return;
+    }
+    setAvatarBusy(true); setMessage("");
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Please sign in again.");
+      const extension = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+      const path = session.user.id + "/" + Date.now() + "." + extension;
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, { contentType: file.type, upsert: false });
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      const publicUrl = data.publicUrl;
+      const { error: updateError } = await supabase.auth.updateUser({ data: { avatar_url: publicUrl } });
+      if (updateError) throw updateError;
+      setAvatarUrl(publicUrl);
+      setMessage(language === "ru" ? "Фото профиля обновлено." : language === "lv" ? "Profila attēls atjaunināts." : "Profile photo updated.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Could not upload the image.");
+    } finally { setAvatarBusy(false); }
+  }
+
+  async function removeAvatar() {
+    if (!supabase) return;
+    setAvatarBusy(true); setMessage("");
+    const { error } = await supabase.auth.updateUser({ data: { avatar_url: null } });
+    if (error) setMessage(error.message);
+    else { setAvatarUrl(null); setMessage(language === "ru" ? "Фото удалено." : language === "lv" ? "Attēls noņemts." : "Profile photo removed."); }
+    setAvatarBusy(false);
+  }
 
   async function logout() {
     await supabase?.auth.signOut();
@@ -72,7 +114,7 @@ export default function AccountPage() {
         <section className="profile-panel">
           <div className="profile-topline"><span>{tr.overview}</span><span className="profile-status"><i/> {tr.active}</span></div>
           <div className="profile-main">
-            <div className="profile-avatar">{(profile?.display_name || profile?.nickname || email || "P").slice(0,1).toUpperCase()}</div>
+            <div className="profile-avatar">{avatarUrl ? <img src={avatarUrl} alt="Profile avatar" /> : (profile?.display_name || profile?.nickname || email || "P").slice(0,1).toUpperCase()}</div>
             <div className="profile-identity"><span className="account-kicker">{tr.welcome}</span><h2>{profile?.display_name || profile?.nickname || tr.player}</h2><p>{email}</p></div>
             <span className="profile-role">{profile?.role === "SUPER_ADMIN" ? "SUPER ADMIN" : tr.player}</span>
           </div>
@@ -80,6 +122,15 @@ export default function AccountPage() {
             <div><span>{tr.nickname}</span><strong>{profile?.nickname || tr.notset}</strong></div>
             <div><span>{tr.display}</span><strong>{profile?.display_name || tr.notset}</strong></div>
             <div><span>{tr.type}</span><strong>{profile?.role || tr.player}</strong></div>
+          </div>
+        </section>
+        <section className="avatar-editor">
+          <div><span>{tr.avatar}</span><p>{tr.avatarHint}</p></div>
+          <div className="avatar-editor-actions">
+            <label className="avatar-upload-button">{avatarBusy ? "..." : avatarUrl ? tr.change : tr.upload}
+              <input type="file" accept="image/jpeg,image/png,image/webp" disabled={avatarBusy} onChange={event => { const file = event.target.files?.[0]; if (file) void uploadAvatar(file); event.currentTarget.value = ""; }} />
+            </label>
+            {avatarUrl && <button type="button" disabled={avatarBusy} onClick={() => void removeAvatar()}>{tr.remove}</button>}
           </div>
         </section>
         <section style={{border:"1px solid #373941",background:"linear-gradient(145deg,#191b21,#101115)",padding:"20px 24px",marginBottom:18}}>
