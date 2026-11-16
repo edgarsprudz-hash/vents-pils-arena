@@ -7,23 +7,24 @@ export default function MaintenanceGate({children}:{children:React.ReactNode}){
   const [state,setState]=useState<"loading"|"open"|"closed">("loading");
   const [maintenance,setMaintenance]=useState<Maintenance>({enabled:false});
   useEffect(()=>{
-    if(!supabase){setState("open");return;}
+    const client = supabase;
+    if(!client){setState("open");return;}
     let active=true;
     const check=async()=>{
-      const {data}=await supabase.from("site_settings").select("value").eq("key","maintenance_mode").maybeSingle();
+      const {data}=await client.from("site_settings").select("value").eq("key","maintenance_mode").maybeSingle();
       const value=(data?.value||{enabled:false}) as Maintenance;
       if(!active)return;
       setMaintenance(value);
-      const {data:{session}}=await supabase.auth.getSession();
+      const {data:{session}}=await client.auth.getSession();
       let isAdmin=false;
       if(session){
-        const {data:profile}=await supabase.from("profiles").select("role").eq("id",session.user.id).maybeSingle();
+        const {data:profile}=await client.from("profiles").select("role").eq("id",session.user.id).maybeSingle();
         isAdmin=profile?.role==="SUPER_ADMIN";
       }
       setState(value.enabled&&!isAdmin?"closed":"open");
     };
     check();
-    const {data:{subscription}}=supabase.auth.onAuthStateChange(()=>{check();});
+    const {data:{subscription}}=client.auth.onAuthStateChange(()=>{check();});
     const refresh=window.setInterval(check,15000);
     return()=>{active=false;subscription.unsubscribe();window.clearInterval(refresh);};
   },[]);
