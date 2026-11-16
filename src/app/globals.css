@@ -336,3 +336,30 @@
 .about-cta:hover{background:#d9232c}
 .about-bottom{display:flex;justify-content:space-between;gap:16px;padding-top:18px;border-top:1px solid #292b32;color:#696c75;font-size:8px;font-weight:900;letter-spacing:1.3px}
 @media(max-width:650px){.footer-brand-logo{width:175px}.about-page{padding:25px 22px 40px}.about-back{margin-bottom:28px}.about-logo{width:min(390px,95%);margin-bottom:35px}.about-facts{grid-template-columns:1fr}.about-facts>div,.about-facts>div+div{padding:17px 0;border-left:0;border-bottom:1px solid #24262d}.about-content section{grid-template-columns:1fr;gap:12px;padding:23px 0}.about-content h2{font-size:30px}.about-bottom{flex-direction:column;gap:9px}}
+
+
+/* Mobile viewport and Russian typography corrections */
+html,body{width:100%;max-width:100%;min-width:0;overflow-x:hidden}
+body>div{width:100%;max-width:100%;min-width:0}
+main{width:100%;max-width:100%;min-width:0}
+.community-section,.upcoming-section,.site-footer,.site-footer-main,.site-footer-bottom{width:100%;max-width:100%;min-width:0}
+.community-section{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}
+.community-copy,.community-links,.community-link{min-width:0}
+.community-link{grid-template-columns:minmax(0,120px) minmax(0,1fr) minmax(0,auto)}
+.community-link strong{min-width:0;overflow-wrap:anywhere}
+.site-footer{display:block}
+.site-footer-main{grid-template-columns:minmax(0,1fr) minmax(0,.55fr) minmax(0,.65fr)}
+@media(max-width:760px){
+  .community-section{grid-template-columns:minmax(0,1fr);padding:48px 6vw;gap:25px}
+  .community-copy h2{font-size:clamp(38px,12vw,64px);line-height:.9;overflow-wrap:anywhere}
+  .community-copy p{max-width:100%;font-size:13px;line-height:1.75}
+  .community-link{grid-template-columns:minmax(0,90px) minmax(0,1fr);gap:12px;padding:18px 15px}
+  .community-link>span{font-size:8px;line-height:1.5;overflow-wrap:anywhere}
+  .community-link strong{font-size:clamp(18px,5vw,23px);line-height:1.15}
+  .community-link small{grid-column:2;text-align:left;line-height:1.5;overflow-wrap:anywhere}
+  .site-footer{display:block;padding:32px 22px 18px}
+  .site-footer-main{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:26px 18px}
+  .footer-column{min-width:0}
+  .footer-column h3,.footer-column a{overflow-wrap:anywhere;line-height:1.5}
+  .site-footer-bottom{display:flex;flex-wrap:wrap;justify-content:space-between}
+}
