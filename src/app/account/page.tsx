@@ -87,7 +87,8 @@ export default function AccountPage() {
     if (!supabase) return;
     const { data, error } = await supabase.auth.mfa.listFactors();
     if (error) { setMessage(error.message); return; }
-    const verified = (data?.totp || []).find((factor) => factor.status === "verified");
+    const totpFactors = data?.totp ?? (data?.all || []).filter((factor) => factor.factor_type === "totp");
+    const verified = totpFactors.find((factor) => factor.status === "verified");
     setTotpFactor(verified ? { id: verified.id, status: verified.status, friendly_name: verified.friendly_name } : null);
   }
 
@@ -168,7 +169,8 @@ export default function AccountPage() {
       // Remove abandoned, unverified setup attempts so they cannot block a fresh enrollment.
       const { data: factors, error: listError } = await supabase.auth.mfa.listFactors();
       if (listError) throw listError;
-      const existingVerified = (factors?.totp || []).find((factor) => factor.status === "verified");
+      const totpFactors = factors?.totp ?? (factors?.all || []).filter((factor) => factor.factor_type === "totp");
+      const existingVerified = totpFactors.find((factor) => factor.status === "verified");
       if (existingVerified) {
         setTotpFactor({ id: existingVerified.id, status: existingVerified.status, friendly_name: existingVerified.friendly_name });
         setTotpSetup(null);
@@ -176,13 +178,15 @@ export default function AccountPage() {
         return;
       }
 
-      const pending = factors?.totp || [];
+      const pending = totpFactors.filter((factor) => factor.status !== "verified");
       for (const factor of pending) {
         const { error: removeError } = await supabase.auth.mfa.unenroll({ factorId: factor.id });
         if (removeError) throw removeError;
       }
 
-      const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: "VENTSPILS ARENA" });
+      // Supabase requires unique friendly names; use a fresh label for each enrollment attempt.
+      const friendlyName = `VENTSPILS ARENA ${Date.now().toString().slice(-6)}`;
+      const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName });
       if (error) throw error;
       const challenge = await supabase.auth.mfa.challenge({ factorId: data.id });
       if (challenge.error) {
