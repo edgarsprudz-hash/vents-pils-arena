@@ -33,3 +33,7 @@ drop policy if exists "Recipients can mark messages as read" on public.arena_mes
 create policy "Recipients can mark messages as read" on public.arena_messages
 for update to authenticated using (recipient_id = auth.uid())
 with check (recipient_id = auth.uid());
+
+-- Recipients may only update the read timestamp, not message content or sender metadata.
+revoke update on public.arena_messages from authenticated;
+grant update (read_at) on public.arena_messages to authenticated;
