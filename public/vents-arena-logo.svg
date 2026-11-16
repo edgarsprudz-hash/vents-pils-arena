@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 210" role="img" aria-labelledby="title">
+<title id="title">VENTSPILS ARENA</title>
+<g fill="none" stroke="#ef3038" stroke-width="12" stroke-linejoin="miter">
+<path d="M18 18 L302 18 L164 190 Z"/>
+<path d="M65 51 L240 51 L164 156 Z" stroke-width="8"/>
+<path d="M18 18 L164 190 L164 156"/>
+</g>
+<text x="345" y="91" fill="#f4f4f4" font-family="Arial,Helvetica,sans-serif" font-size="63" font-weight="800" letter-spacing="5">VENTSPILS</text>
+<text x="345" y="165" fill="#ef3038" font-family="Arial,Helvetica,sans-serif" font-size="63" font-weight="800" letter-spacing="14">ARENA</text>
+</svg>
