@@ -363,3 +363,9 @@ main{width:100%;max-width:100%;min-width:0}
   .footer-column h3,.footer-column a{overflow-wrap:anywhere;line-height:1.5}
   .site-footer-bottom{display:flex;flex-wrap:wrap;justify-content:space-between}
 }
+
+
+/* Temporary clean wordmark: do not substitute an inaccurate logo drawing */
+.footer-brand-wordmark{display:grid;gap:2px;font:900 19px/1 'Inter',Arial,sans-serif;letter-spacing:2px;color:#f4f4f5}
+.footer-brand-wordmark strong{color:#ef3038;letter-spacing:5px}
+@media(max-width:620px){.footer-brand-wordmark{font-size:18px}}
