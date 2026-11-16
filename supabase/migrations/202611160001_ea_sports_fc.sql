@@ -63,7 +63,7 @@ begin
     if length(trim(coalesce(new.contact_name,''))) < 2
       or length(trim(coalesce(new.contact_surname,''))) < 2
       or length(trim(coalesce(new.contact_phone,''))) < 5
-      or new.contact_email !~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$'
+      or position('@' in coalesce(new.contact_email,'')) < 2
     then raise exception 'Complete the required contact details.'; end if;
     if length(trim(coalesce(new.player_platform,''))) = 0 then raise exception 'Choose the platform.'; end if;
     return new;
