@@ -46,7 +46,7 @@ export default function Home(){
       <div className="site-footer-main">
         <Link href="/" className="footer-brand" aria-label="VENTSPILS ARENA home"><img className="footer-brand-logo" src="/vents-arena-logo.svg" alt="VENTSPILS ARENA" /></Link>
         <div className="footer-column"><h3>{t.footerAbout}</h3><Link href="/about">{t.footerAboutUs}</Link><a href="mailto:vcupsupport@gmail.com?subject=Partnership%20with%20VENTSPILS%20ARENA">{t.footerPartners}</a></div>
-        <div className="footer-column"><h3>{t.footerLegal}</h3><Link href="/privacy">{t.footerPrivacy}</Link><Link href="/cookies">{t.footerCookies}</Link><Link href="/terms">{t.footerTerms}</Link></div>
+        <div className="footer-column"><h3>{t.footerLegal}</h3><Link href="/privacy">{t.footerPrivacy}</Link><Link href="/cookies">{t.footerCookies}</Link><Link href="/copyright">{t.footerCopyright}</Link><Link href="/terms">{t.footerTerms}</Link></div>
       </div>
       <div className="site-footer-bottom"><span>© 2026 VENTSPILS ARENA</span><span>VENTSPILS, LATVIA</span></div>
     </footer>
