@@ -19,11 +19,11 @@ export default function LanguageSwitcher() {
       aria-label="Language selector"
       style={{
         position: "fixed",
-        top: "50%",
-        right: "12px",
-        bottom: "auto",
+        top: "auto",
+        right: "0",
+        bottom: "20px",
         left: "auto",
-        transform: "translateY(-50%)",
+        transform: "none",
         zIndex: 2147483000,
         display: "flex",
         flexDirection: "column",
@@ -87,14 +87,14 @@ export default function LanguageSwitcher() {
         aria-expanded={open}
         aria-label={`Change language, current language: ${labels[language]}`}
         style={{
-          minWidth: "52px",
-          minHeight: "76px",
-          padding: "10px 8px",
+          minWidth: "48px",
+          minHeight: "68px",
+          padding: "9px 7px",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: "9px",
+          gap: "8px",
           border: "1px solid #49414a",
           borderRight: 0,
           borderRadius: "9px 0 0 9px",
