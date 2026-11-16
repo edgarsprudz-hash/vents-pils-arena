@@ -5,11 +5,8 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
-type Tournament = {
-  id: string; title: string; game: string; description: string;
-  event_date: string | null; location: string; status: string; format: string;
-};
-const blank = { title: "", game: "CS2", description: "", event_date: "", location: "Ventspils, Latvia", status: "DRAFT", format: "5v5" };
+type Tournament = { id: string; title: string; game: string; description: string; event_date: string | null; location: string; status: string; format: string };
+const blank = { title: "", game: "CS2", description: "", event_date: "", location: "Ventspils, Latvia", status: "DRAFT", format: "5v5", platform: "PS5", game_version: "EA SPORTS FC 26", entry_fee_online: "5", entry_fee_onsite: "10", club_selection: "FREE" };
 
 export default function AdminTournamentsPage() {
   const router = useRouter();
@@ -37,7 +34,7 @@ export default function AdminTournamentsPage() {
 
   function edit(item: Tournament) {
     setEditing(item.id);
-    setForm({ title: item.title, game: item.game, description: item.description, event_date: item.event_date ? item.event_date.slice(0,16) : "", location: item.location, status: item.status, format: item.format });
+    setForm({ ...blank, title: item.title, game: item.game, description: item.description, event_date: item.event_date ? item.event_date.slice(0,16) : "", location: item.location, status: item.status, format: item.format, platform: (item as any).platform || "PS5", game_version: (item as any).game_version || "EA SPORTS FC 26", entry_fee_online: String((item as any).entry_fee_online ?? 5), entry_fee_onsite: String((item as any).entry_fee_onsite ?? 10), club_selection: (item as any).club_selection || "FREE" });
     setMessage("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -46,7 +43,7 @@ export default function AdminTournamentsPage() {
     e.preventDefault();
     if (!supabase) return;
     setSaving(true); setMessage("");
-    const payload = { ...form, event_date: form.event_date ? new Date(form.event_date).toISOString() : null, updated_at: new Date().toISOString() };
+    const payload = { ...form, format: form.game === "EA SPORTS FC" ? "1v1" : form.format, entry_fee_online: form.game === "EA SPORTS FC" ? Number(form.entry_fee_online) : null, entry_fee_onsite: form.game === "EA SPORTS FC" ? Number(form.entry_fee_onsite) : null, platform: form.game === "EA SPORTS FC" ? form.platform : null, game_version: form.game === "EA SPORTS FC" ? form.game_version : null, club_selection: form.game === "EA SPORTS FC" ? form.club_selection : null, event_date: form.event_date ? new Date(form.event_date).toISOString() : null, updated_at: new Date().toISOString() };
     const result = editing
       ? await supabase.from("tournaments").update(payload).eq("id", editing)
       : await supabase.from("tournaments").insert(payload);
@@ -72,12 +69,13 @@ export default function AdminTournamentsPage() {
       <form className="admin-form" onSubmit={submit}>
         <label>TOURNAMENT NAME<input required value={form.title} onChange={e=>setForm({...form,title:e.target.value})} placeholder="e.g. VENTSPILS ARENA WINTER CUP"/></label>
         <div className="admin-form-grid">
-          <label>GAME<select required value={form.game} onChange={e=>setForm({...form,game:e.target.value,format:e.target.value==="Clash Royale"?"1v1":"5v5"})}><option value="CS2">COUNTER-STRIKE 2</option><option value="Clash Royale">CLASH ROYALE</option></select></label>
-          <label>FORMAT<select required disabled={form.game==="Clash Royale"} value={form.game==="Clash Royale"?"1v1":form.format} onChange={e=>setForm({...form,format:e.target.value})}>{form.game==="Clash Royale"?<option value="1v1">1 vs 1 — 1 player</option>:<><option value="2v2">2 vs 2 — 2 players</option><option value="3v3">3 vs 3 — 3 players</option><option value="5v5">5 vs 5 — 5 players</option></>}</select></label>
+          <label>GAME<select required value={form.game} onChange={e=>setForm({...form,game:e.target.value,format:e.target.value==="CS2"?"5v5":"1v1"})}><option value="CS2">COUNTER-STRIKE 2</option><option value="Clash Royale">CLASH ROYALE</option><option value="EA SPORTS FC">EA SPORTS FC / FIFA</option></select></label>
+          <label>FORMAT<select required disabled={form.game!=="CS2"} value={form.game==="CS2"?form.format:"1v1"} onChange={e=>setForm({...form,format:e.target.value})}>{form.game==="CS2"?<><option value="2v2">2 vs 2 — 2 players</option><option value="3v3">3 vs 3 — 3 players</option><option value="5v5">5 vs 5 — 5 players</option></>:<option value="1v1">1 vs 1 — individual player</option>}</select></label>
           <label>DATE & TIME<input type="datetime-local" value={form.event_date} onChange={e=>setForm({...form,event_date:e.target.value})}/></label>
           <label>STATUS<select value={form.status} onChange={e=>setForm({...form,status:e.target.value})}><option value="DRAFT">DRAFT</option><option value="REGISTRATION">REGISTRATION</option><option value="LIVE">LIVE</option><option value="COMPLETED">COMPLETED</option><option value="CANCELLED">CANCELLED</option></select></label>
         </div>
         <label>LOCATION<input value={form.location} onChange={e=>setForm({...form,location:e.target.value})}/></label>
+        {form.game === "EA SPORTS FC" && <><div className="admin-form-grid"><label>PLATFORM<select value={form.platform} onChange={e=>setForm({...form,platform:e.target.value})}><option value="PS5">PlayStation 5</option><option value="PS4">PlayStation 4</option><option value="Xbox">Xbox</option><option value="PC">PC</option></select></label><label>GAME VERSION<input value={form.game_version} onChange={e=>setForm({...form,game_version:e.target.value})}/></label><label>ONLINE ENTRY FEE (€)<input type="number" min="0" step="0.50" value={form.entry_fee_online} onChange={e=>setForm({...form,entry_fee_online:e.target.value})}/></label><label>ON-SITE ENTRY FEE (€)<input type="number" min="0" step="0.50" value={form.entry_fee_onsite} onChange={e=>setForm({...form,entry_fee_onsite:e.target.value})}/></label></div><label>CLUB SELECTION<select value={form.club_selection} onChange={e=>setForm({...form,club_selection:e.target.value})}><option value="FREE">Free club choice (no duplicate club in one match)</option><option value="MIRRORED">Both players use the same club</option><option value="FIXED">Organizer sets clubs</option></select></label></>}
         <label>DESCRIPTION<textarea rows={4} value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/></label>
         <div className="admin-form-actions"><button disabled={saving}>{saving ? "SAVING..." : editing ? "SAVE CHANGES ↗" : "CREATE TOURNAMENT ↗"}</button>{editing && <button type="button" className="admin-secondary" onClick={reset}>CANCEL</button>}</div>
       </form>
