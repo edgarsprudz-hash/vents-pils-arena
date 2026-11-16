@@ -168,7 +168,15 @@ export default function AccountPage() {
       // Remove abandoned, unverified setup attempts so they cannot block a fresh enrollment.
       const { data: factors, error: listError } = await supabase.auth.mfa.listFactors();
       if (listError) throw listError;
-      const pending = (factors?.totp || []).filter((factor) => factor.status !== "verified");
+      const existingVerified = (factors?.totp || []).find((factor) => factor.status === "verified");
+      if (existingVerified) {
+        setTotpFactor({ id: existingVerified.id, status: existingVerified.status, friendly_name: existingVerified.friendly_name });
+        setTotpSetup(null);
+        setTotpMessage(ru ? "Google Authenticator уже привязан к аккаунту. 2FA включена." : lv ? "Google Authenticator jau ir piesaistīts kontam. 2FA ir ieslēgta." : "An authenticator is already linked to this account. 2FA is enabled.");
+        return;
+      }
+
+      const pending = factors?.totp || [];
       for (const factor of pending) {
         const { error: removeError } = await supabase.auth.mfa.unenroll({ factorId: factor.id });
         if (removeError) throw removeError;
