@@ -79,7 +79,7 @@ export default function TournamentDetailsPage(){
 
   async function submitRegistration(e:FormEvent<HTMLFormElement>){
     e.preventDefault(); if(!supabase||!item)return;
-    if(item.game==="EA SPORTS FC" && (fcName.trim().length<2 || fcSurname.trim().length<2 || fcPhone.trim().length<5 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(fcEmail.trim()) || (item.club_selection!=="FIXED" && !fcClub.trim()))){setMessage("Complete your contact details and club choice.");return;}
+    if(item.game==="EA SPORTS FC" && (fcName.trim().length<2 || fcSurname.trim().length<2 || fcPhone.trim().length<5 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fcEmail.trim()) || (item.club_selection!=="FIXED" && !fcClub.trim()))){setMessage("Complete your contact details and club choice.");return;}
     const {data:{session}}=await supabase.auth.getSession();
     if(!session){router.push("/login");return;}
     const isCS2=item.game==="CS2"; const isFC=item.game==="EA SPORTS FC"; const isClash=item.game==="Clash Royale";
