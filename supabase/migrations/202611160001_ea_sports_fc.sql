@@ -108,6 +108,6 @@ for insert to authenticated with check (
       and t.format='1v1' and jsonb_array_length(roster)=1
       and length(trim(coalesce(contact_name,'')))>=2 and length(trim(coalesce(contact_surname,'')))>=2
       and length(trim(coalesce(contact_phone,'')))>=5 and length(trim(coalesce(contact_email,'')))>=5
-      and length(trim(coalesce(player_platform,'')))>0)
+      and length(trim(coalesce(player_platform,'')))>0 and payment_status='UNPAID')
   )
 );
