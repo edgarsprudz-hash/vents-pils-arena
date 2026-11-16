@@ -308,3 +308,31 @@
 .footer-column a:hover{color:#ef555c}
 .site-footer-bottom{max-width:1240px;margin:25px auto 0;padding-top:18px;border-top:1px solid #25272e;display:flex;justify-content:space-between;gap:15px;color:#686b74;font-size:8px;font-weight:800;letter-spacing:1.3px}
 @media(max-width:620px){.site-footer{margin-top:48px;padding:32px 22px 18px}.site-footer-main{grid-template-columns:1fr 1fr;gap:30px 22px}.footer-brand{grid-column:1/-1;margin-bottom:4px}.footer-column h3{font-size:8px}.footer-column a{font-size:10px}.site-footer-bottom{font-size:7px;letter-spacing:.8px}}
+
+
+/* VENTSPILS ARENA brand assets and About page */
+.footer-brand-logo{display:block;width:205px;height:auto;max-width:100%}
+.about-page{min-height:100vh;padding:36px 6vw 55px;background:radial-gradient(ellipse at 78% 8%,#451218 0,transparent 29%),#08090c;color:#f4f4f5}
+.about-shell{max-width:1120px;margin:0 auto}
+.about-back{display:inline-block;margin:4px 0 42px;color:#9699a2;font-size:9px;font-weight:900;letter-spacing:1.5px}
+.about-back:hover{color:#fff}
+.about-hero{padding:35px 0 45px;border-bottom:1px solid #292b32}
+.about-logo{display:block;width:min(490px,85%);height:auto;margin:0 0 42px}
+.about-eyebrow{color:#ef666d;font-size:9px;font-weight:900;letter-spacing:2px}
+.about-hero h1{margin:17px 0 20px;font:900 clamp(68px,11vw,118px)/.85 'Barlow Condensed',Impact;letter-spacing:-1px}
+.about-hero h1 i{color:#ef3038;font-style:normal}
+.about-intro{max-width:760px;margin:0;color:#d0d1d5;font-size:clamp(16px,2vw,21px);line-height:1.75}
+.about-facts{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid #292b32}
+.about-facts>div{display:grid;gap:11px;padding:24px 22px 25px 0}
+.about-facts>div+div{padding-left:22px;border-left:1px solid #292b32}
+.about-facts span,.about-content section>span{color:#ef666d;font-size:8px;font-weight:900;letter-spacing:1.6px}
+.about-facts strong{color:#e6e7e9;font-size:10px;line-height:1.6;letter-spacing:.5px}
+.about-content{padding:12px 0 28px}
+.about-content section{display:grid;grid-template-columns:180px 1fr;gap:28px;padding:30px 0;border-bottom:1px solid #24262d}
+.about-content section>span{padding-top:8px}
+.about-content h2{margin:0 0 12px;font:900 34px/1 'Barlow Condensed',Impact;letter-spacing:.5px}
+.about-content p{max-width:760px;margin:0;color:#a7a9b0;font-size:12px;line-height:1.9}
+.about-cta{display:inline-flex;margin:20px 0 38px;padding:16px 20px;background:#ef3038;color:#fff;font-size:9px;font-weight:900;letter-spacing:1.3px}
+.about-cta:hover{background:#d9232c}
+.about-bottom{display:flex;justify-content:space-between;gap:16px;padding-top:18px;border-top:1px solid #292b32;color:#696c75;font-size:8px;font-weight:900;letter-spacing:1.3px}
+@media(max-width:650px){.footer-brand-logo{width:175px}.about-page{padding:25px 22px 40px}.about-back{margin-bottom:28px}.about-logo{width:min(390px,95%);margin-bottom:35px}.about-facts{grid-template-columns:1fr}.about-facts>div,.about-facts>div+div{padding:17px 0;border-left:0;border-bottom:1px solid #24262d}.about-content section{grid-template-columns:1fr;gap:12px;padding:23px 0}.about-content h2{font-size:30px}.about-bottom{flex-direction:column;gap:9px}}
