@@ -218,11 +218,19 @@
 /* Public tournament bracket */
 .public-bracket-section{margin:48px 0 55px;padding-top:32px;border-top:1px solid #343740}.public-bracket-intro{margin:-22px 0 8px;color:#999;font-size:11px;line-height:1.8}.public-bracket-board{display:flex;gap:18px;overflow-x:auto;padding:28px 0 18px;align-items:stretch}.public-bracket-round{display:flex;flex:0 0 245px;flex-direction:column;gap:15px}.public-bracket-round h3{margin:0;color:#ef555c;font:900 21px 'Barlow Condensed',Impact;letter-spacing:1px}.public-bracket-match{padding:12px;border:1px solid #373a43;background:linear-gradient(145deg,#191b21,#101115)}.public-bracket-match-top{display:flex;justify-content:space-between;padding-bottom:10px;color:#888;font-size:8px;letter-spacing:1px}.public-bracket-match-top b{color:#ef777d}.public-bracket-team{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:13px 10px;border:1px solid #353740;border-bottom:0;background:#0c0e12;color:#ddd;font-size:10px}.public-bracket-team:last-child{border-bottom:1px solid #353740}.public-bracket-team span{overflow-wrap:anywhere}.public-bracket-team b{color:#8cf0b1;font-size:7px;letter-spacing:.8px}.public-bracket-winner{background:#173023;border-color:#3d9864;color:#8cf0b1}@media(max-width:650px){.public-bracket-round{flex-basis:220px}.public-bracket-intro{margin-top:-14px}}
 
-/* Persistent language selector */
-.language-switcher{position:fixed;z-index:200;right:22px;bottom:20px;display:flex;gap:3px;padding:4px;background:#111216;border:1px solid #41434b;box-shadow:0 8px 28px #0009}
-.language-switcher button{min-width:38px;padding:9px 8px;border:0;background:transparent;color:#999;font:800 10px Inter,Arial;letter-spacing:1px;cursor:pointer;transition:.18s}
-.language-switcher button:hover{color:#fff}.language-switcher button.active{background:#ef3038;color:#fff}
-@media(max-width:600px){.language-switcher{right:12px;bottom:12px}.language-switcher button{min-width:34px;padding:8px 6px}}
+/* Minimal floating side language selector */
+.language-dock{position:fixed;z-index:300;right:0;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:8px}
+.language-dock-trigger{width:42px;min-height:76px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;border:1px solid #34363d;border-right:0;background:rgba(15,16,20,.94);color:#bfc0c5;cursor:pointer;box-shadow:0 5px 20px #0007}
+.language-dock-trigger svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
+.language-dock-trigger span{font:800 9px Inter,Arial;letter-spacing:1px;color:#ef454d;writing-mode:vertical-rl}
+.language-dock-trigger:hover{color:#fff;border-color:#ef3038}
+.language-dock-menu{position:absolute;right:48px;top:50%;transform:translateY(-50%);min-width:142px;padding:5px;background:#111216;border:1px solid #34363d;box-shadow:0 8px 28px #000b}
+.language-dock-menu button{width:100%;display:flex;align-items:center;gap:12px;padding:11px 10px;border:0;background:transparent;color:#a4a6ad;text-align:left;cursor:pointer}
+.language-dock-menu button b{width:23px;color:#ef555c;font:900 10px Inter,Arial;letter-spacing:1px}
+.language-dock-menu button span{font:600 11px Inter,Arial}
+.language-dock-menu button:hover,.language-dock-menu button.selected{background:#202127;color:#fff}
+.language-dock-menu button.selected b{color:#fff}
+@media(max-width:600px){.language-dock-trigger{width:35px;min-height:66px}.language-dock-menu{right:41px;min-width:132px}}
 
 /* Saved-team selection in tournament registration */
 .team-registration-form label select{width:100%;min-height:46px;padding:12px 14px;border:1px solid #34363d;border-radius:2px;background:#111317;color:#f4f4f2;font:13px Inter,Arial;outline:none}.team-registration-form label select:focus{border-color:#ef3038}
