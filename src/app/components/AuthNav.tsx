@@ -25,6 +25,7 @@ export default function AuthNav() {
     {open && <div className="account-dropdown">
       <div className="dropdown-user"><span className="dropdown-label">{t.signedIn}</span><strong>{email}</strong></div>
       <Link href="/account" onClick={() => setOpen(false)}>{t.cabinet} <span>↗</span></Link>
+      <Link href="/account/messages" onClick={() => setOpen(false)}>{language === "ru" ? "✉  СООБЩЕНИЯ" : language === "lv" ? "✉  ZIŅOJUMI" : "✉  MESSAGES"} <span>↗</span></Link>
       <button type="button" onClick={async () => { await supabase?.auth.signOut(); window.location.href = "/"; }}>{t.logout} <span>↗</span></button>
     </div>}
   </div>;
