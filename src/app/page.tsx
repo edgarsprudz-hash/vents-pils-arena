@@ -42,6 +42,13 @@ export default function Home(){
         <Link className="community-link" href="/support"><span>03 / SUPPORT ↗</span><strong>{t.support}</strong><small>{t.openSupport}</small></Link><Link className="community-link" href="/complaints"><span>04 / PLAYER SERVICES ↗</span><strong>{t.complaint}</strong><small>{t.track}</small></Link>
       </div>
     </section>
-    <footer><span>VENTSPILS ARENA　·　© 2026</span><span>COMPETE • CONNECT • CONQUER</span><Link href="/rules">{t.rules}</Link></footer>
+    <footer className="site-footer">
+      <div className="site-footer-main">
+        <Link href="/" className="footer-brand" aria-label="VENTSPILS ARENA home"><span className="footer-brand-mark">V</span><span className="footer-brand-name">VENTSPILS <b>ARENA</b></span></Link>
+        <div className="footer-column"><h3>{t.footerAbout}</h3><Link href="/community">{t.footerAboutUs}</Link><a href="mailto:vcupsupport@gmail.com?subject=Partnership%20with%20VENTSPILS%20ARENA">{t.footerPartners}</a></div>
+        <div className="footer-column"><h3>{t.footerLegal}</h3><Link href="/privacy">{t.footerPrivacy}</Link><Link href="/privacy#cookies">{t.footerCookies}</Link><Link href="/terms">{t.footerTerms}</Link></div>
+      </div>
+      <div className="site-footer-bottom"><span>© 2026 VENTSPILS ARENA</span><span>VENTSPILS, LATVIA</span></div>
+    </footer>
   </main>;
 }
