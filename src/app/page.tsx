@@ -23,7 +23,7 @@ export default function Home(){
   },[]);
   return <main>
     <header><b>V <span>VENTSPILS ARENA</span></b><nav>{t.nav.map((label,i)=><Link key={label} href={["/tournaments","/teams","/rankings","/news","/rules","/complaints"][i]}>{label}</Link>)}</nav><AuthNav /></header>
-    <section className="hero"><small>{t.heroEyebrow}</small><h1>{t.heroTitle[0]}<br/><em>{t.heroTitle[1]}</em><br/>{t.heroTitle[2]}</h1><p>{t.heroText}</p><Link className="button" href="/tournaments">{t.explore}</Link><label>COMPETE　•　CONNECT　•　CONQUER</label></section>
+    <section className="hero"><small>{t.heroEyebrow}</small><h1>{t.heroTitle[0]}<br/><em>{t.heroTitle[1]}</em>{t.heroTitle[2] && <><br/>{t.heroTitle[2]}</> }</h1><p>{t.heroText}</p><Link className="button" href="/tournaments">{t.explore}</Link><label>COMPETE　•　CONNECT　•　CONQUER</label></section>
     <section className="upcoming-section">
       <div className="upcoming-heading"><div><small>{t.calendar}</small><h2>{t.upcoming} <em>{t.tournaments}</em></h2><p>{t.calendarText}</p></div><Link href="/tournaments">{t.all}</Link></div>
       {loading?<div className="upcoming-empty">{t.loading}</div>:events.length===0?<div className="upcoming-empty"><span>01 / CALENDAR</span><div><h3>{t.none}</h3><p>{t.newEvents}</p></div><Link href="/tournaments">{t.view}</Link></div>:
