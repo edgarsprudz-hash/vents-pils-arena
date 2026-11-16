@@ -79,6 +79,7 @@ export default function AccountPage() {
   const [totpSetup, setTotpSetup] = useState<{ id: string; qr: string; secret: string; challengeId: string } | null>(null);
   const [totpCode, setTotpCode] = useState("");
   const [totpBusy, setTotpBusy] = useState(false);
+  const [totpMessage, setTotpMessage] = useState("");
 
   async function refreshFactors() {
     if (!supabase) return;
@@ -158,28 +159,44 @@ export default function AccountPage() {
   }
 
   async function beginTotpSetup() {
-    if (!supabase) return;
-    setTotpBusy(true); setMessage("");
-    const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: "VENTSPILS ARENA" });
-    if (error) setMessage(error.message);
-    else {
+    if (!supabase || totpBusy) return;
+    setTotpBusy(true);
+    setTotpMessage("");
+    try {
+      // Remove abandoned, unverified setup attempts so they cannot block a fresh enrollment.
+      const { data: factors, error: listError } = await supabase.auth.mfa.listFactors();
+      if (listError) throw listError;
+      const pending = (factors?.totp || []).filter((factor) => factor.status !== "verified");
+      for (const factor of pending) {
+        const { error: removeError } = await supabase.auth.mfa.unenroll({ factorId: factor.id });
+        if (removeError) throw removeError;
+      }
+
+      const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: "VENTSPILS ARENA" });
+      if (error) throw error;
       const challenge = await supabase.auth.mfa.challenge({ factorId: data.id });
-      if (challenge.error) setMessage(challenge.error.message);
-      else setTotpSetup({ id: data.id, qr: data.totp.qr_code, secret: data.totp.secret, challengeId: challenge.data.id });
+      if (challenge.error) {
+        await supabase.auth.mfa.unenroll({ factorId: data.id });
+        throw challenge.error;
+      }
+      setTotpSetup({ id: data.id, qr: data.totp.qr_code, secret: data.totp.secret, challengeId: challenge.data.id });
+    } catch (error) {
+      setTotpMessage(error instanceof Error ? error.message : (ru ? "Не удалось запустить настройку 2FA." : lv ? "Neizdevās sākt 2FA iestatīšanu." : "Could not start 2FA setup."));
+    } finally {
+      setTotpBusy(false);
     }
-    setTotpBusy(false);
   }
 
   async function verifyTotp() {
     if (!supabase || !totpSetup) return;
     const code = totpCode.replace(/\s/g, "");
     if (!/^\d{6}$/.test(code)) { setMessage(ru ? "Введи 6-значный код." : lv ? "Ievadi 6 ciparu kodu." : "Enter the 6-digit code."); return; }
-    setTotpBusy(true); setMessage("");
+    setTotpBusy(true); setTotpMessage("");
     const { error } = await supabase.auth.mfa.verify({ factorId: totpSetup.id, challengeId: totpSetup.challengeId, code });
-    if (error) setMessage(error.message);
+    if (error) setTotpMessage(error.message);
     else {
       setTotpSetup(null); setTotpCode(""); await refreshFactors();
-      setMessage(ru ? "Двухфакторная защита включена." : lv ? "Divfaktoru aizsardzība ieslēgta." : "Two-factor authentication enabled.");
+      setTotpMessage(ru ? "Двухфакторная защита включена." : lv ? "Divfaktoru aizsardzība ieslēgta." : "Two-factor authentication enabled.");
     }
     setTotpBusy(false);
   }
@@ -189,8 +206,8 @@ export default function AccountPage() {
     if (!window.confirm(ru ? "Отключить двухфакторную защиту аккаунта?" : lv ? "Izslēgt divfaktoru aizsardzību?" : "Disable two-factor authentication?")) return;
     setTotpBusy(true);
     const { error } = await supabase.auth.mfa.unenroll({ factorId: totpFactor.id });
-    if (error) setMessage(error.message);
-    else { setTotpFactor(null); setMessage(ru ? "2FA отключена." : lv ? "2FA izslēgta." : "2FA disabled."); }
+    if (error) setTotpMessage(error.message);
+    else { setTotpFactor(null); setTotpMessage(ru ? "2FA отключена." : lv ? "2FA izslēgta." : "2FA disabled."); }
     setTotpBusy(false);
   }
 
@@ -252,6 +269,7 @@ export default function AccountPage() {
             </section>
             <section className="profile-editor-section">
               <div className="profile-editor-section-title"><span>03</span><div><h3>{t.security}</h3><p>{t.twofaDesc}</p></div></div>
+              {totpMessage && <p className="account-message" role="alert" style={{margin:"0 0 12px",color:"#ff777d"}}>{totpMessage}</p>}
               <div className="profile-security-card"><div className="profile-security-status"><i className={totpFactor ? "is-enabled" : ""}/><div><strong>{t.twofa}</strong><small>{totpFactor ? t.enabled : t.disabled}</small></div></div>{totpFactor ? <button type="button" className="profile-danger-button" disabled={totpBusy} onClick={() => void disableTotp()}>{totpBusy ? "..." : t.disable}</button> : !totpSetup ? <button type="button" className="profile-primary-button" disabled={totpBusy} onClick={() => void beginTotpSetup()}>{totpBusy ? "..." : t.setup}</button> : null}</div>
               {totpSetup && <div className="profile-totp-setup"><p>{t.scan}</p><img src={totpSetup.qr} alt="Authenticator QR code" /><small>{t.secret}</small><code>{totpSetup.secret}</code><label className="profile-field">{t.code}<input inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={totpCode} onChange={event => setTotpCode(event.target.value.replace(/\D/g, "").slice(0,6))} placeholder="000000" /></label><div className="profile-editor-actions"><button type="button" className="profile-primary-button" disabled={totpBusy || totpCode.length !== 6} onClick={() => void verifyTotp()}>{totpBusy ? "..." : t.verify}</button><button type="button" className="profile-text-button" onClick={() => { setTotpSetup(null); setTotpCode(""); }}>{t.cancel}</button></div></div>}
             </section>
