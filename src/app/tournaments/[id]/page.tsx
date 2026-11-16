@@ -5,7 +5,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
-type Tournament = { id:string; title:string; game:string; description:string; event_date:string|null; location:string; status:string; format:string };
+type Tournament = { id:string; title:string; game:string; description:string; event_date:string|null; location:string; status:string; format:string; platform?:string|null; game_version?:string|null; entry_fee_online?:number|null; entry_fee_onsite?:number|null; club_selection?:string|null };
 type Player = { nickname:string; steam:string; steamId64?:string; clashRoyaleTag?:string };
 type SavedTeam = { id:string; name:string };
 type DirectoryPlayer = { id:string; nickname:string; display_name:string|null; steam_id?:string|null };
@@ -24,6 +24,7 @@ export default function TournamentDetailsPage(){
   const [savedTeams,setSavedTeams]=useState<SavedTeam[]>([]);
   const [selectedTeamId,setSelectedTeamId]=useState("");
   const [profileSteamId,setProfileSteamId]=useState("");
+  const [fcName,setFcName]=useState(""); const [fcSurname,setFcSurname]=useState(""); const [fcPhone,setFcPhone]=useState(""); const [fcEmail,setFcEmail]=useState(""); const [fcPlatform,setFcPlatform]=useState("PS5");
   const [bracket,setBracket]=useState<PublicMatch[]>([]);
 
   async function loadTeams(id:string){
@@ -35,7 +36,7 @@ export default function TournamentDetailsPage(){
   useEffect(()=>{ let active=true; async function load(){
     if(!supabase){setMessage("Registration service is not configured.");setLoading(false);return;}
     const [{data,error},{data:{session}}]=await Promise.all([
-      supabase.from("tournaments").select("id,title,game,description,event_date,location,status,format").eq("id",params.id).maybeSingle(),
+      supabase.from("tournaments").select("id,title,game,description,event_date,location,status,format,platform,game_version,entry_fee_online,entry_fee_onsite,club_selection").eq("id",params.id).maybeSingle(),
       supabase.auth.getSession()
     ]);
     if(!active)return;
@@ -78,9 +79,10 @@ export default function TournamentDetailsPage(){
 
   async function submitRegistration(e:FormEvent<HTMLFormElement>){
     e.preventDefault(); if(!supabase||!item)return;
+    if(item.game==="EA SPORTS FC" && (fcName.trim().length<2 || fcSurname.trim().length<2 || fcPhone.trim().length<5 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(fcEmail.trim()) || !fcPlatform)){setMessage("Complete your first name, surname, phone, email and platform.");return;}
     const {data:{session}}=await supabase.auth.getSession();
     if(!session){router.push("/login");return;}
-    const isCS2=item.game==="CS2";
+    const isCS2=item.game==="CS2"; const isFC=item.game==="EA SPORTS FC"; const isClash=item.game==="Clash Royale";
     const clean=players.map(p=>({nickname:p.nickname.trim(),steam:p.steam.trim(),clashRoyaleTag:(p.clashRoyaleTag||"").trim().toUpperCase()}));
     if(clean.some(p=>!p.nickname)){setMessage("Enter a nickname for every player.");return;}
     if(isCS2){
@@ -91,7 +93,7 @@ export default function TournamentDetailsPage(){
       });
       if(invalidSteam){setMessage("A valid Steam profile link is required for every CS2 player.");return;}
       if(!profileSteamId){setMessage("Link your Steam account in your personal cabinet before registering a CS2 team.");return;}
-    } else if(clean.length!==1 || !/^#[A-Z0-9]{3,15}$/.test(clean[0].clashRoyaleTag)){
+    } else if(isClash && (clean.length!==1 || !/^#[A-Z0-9]{3,15}$/.test(clean[0].clashRoyaleTag))){
       setMessage("Enter the player's Clash Royale tag in the format #ABC123.");return;
     }
     setBusy(true);setMessage("");
@@ -113,12 +115,15 @@ export default function TournamentDetailsPage(){
         setBusy(false);return;
       }
       resolvedRoster=verified;
+    } else if(isFC) {
+      resolvedRoster=clean.map(({nickname})=>({nickname}));
     } else {
       resolvedRoster=clean.map(({nickname,clashRoyaleTag})=>({nickname,clashRoyaleTag}));
     }
     const {error}=await supabase.from("tournament_registrations").insert({
       tournament_id:item.id,user_id:session.user.id,status:"PENDING",
-      team_name:isCS2?teamName.trim():clean[0].nickname,captain_name:isCS2?captain.trim():clean[0].nickname,roster:resolvedRoster,arena_team_id:isCS2?(selectedTeamId||null):null
+      team_name:isCS2?teamName.trim():clean[0].nickname,captain_name:isCS2?captain.trim():clean[0].nickname,roster:resolvedRoster,arena_team_id:isCS2?(selectedTeamId||null):null,
+      contact_name:isFC?fcName.trim():null,contact_surname:isFC?fcSurname.trim():null,contact_phone:isFC?fcPhone.trim():null,contact_email:isFC?fcEmail.trim():null,player_platform:isFC?fcPlatform:null,entry_fee:isFC?(item.entry_fee_online??5):null,payment_status:isFC?"UNPAID": "UNPAID"
     });
     if(error){setMessage(error.code==="23505"?"Your account already has a registration for this tournament.":error.message);}
     else{setRegistered(true);setShowForm(false);setMessage("Team registration submitted successfully.");await loadTeams(item.id);}
@@ -142,7 +147,7 @@ export default function TournamentDetailsPage(){
     <div className="detail-topline"><Link className="detail-back" href="/tournaments">← ALL TOURNAMENTS</Link><span>VENTSPILS ARENA <b>/</b> TOURNAMENTS</span></div>
     <section className="detail-hero"><div className="detail-copy"><div className="detail-kicker"><i/> {item.game} <b>•</b> {item.status.replace("_"," ")}</div><h1>{item.title}<span>.</span></h1><p>{item.description||"Official tournament hosted by VENTSPILS ARENA. Compete for the title."}</p></div><div className="detail-stamp"><strong>VA</strong><small>OFFICIAL EVENT</small></div></section>
     <section className="detail-content"><div className="detail-info"><div className="detail-section-label">EVENT INFORMATION <i/></div><div className="detail-facts">
-      <div><small>DATE & TIME</small><strong>{date}</strong></div><div><small>LOCATION</small><strong>{item.location||"TO BE ANNOUNCED"}</strong></div><div><small>FORMAT</small><strong>{item.format||"TO BE ANNOUNCED"}</strong></div><div><small>GAME</small><strong>{item.game}</strong></div>
+      <div><small>DATE & TIME</small><strong>{date}</strong></div><div><small>LOCATION</small><strong>{item.location||"TO BE ANNOUNCED"}</strong></div><div><small>FORMAT</small><strong>{item.format||"TO BE ANNOUNCED"}</strong></div><div><small>GAME</small><strong>{item.game}</strong></div>{item.game==="EA SPORTS FC"&&<><div><small>PLATFORM</small><strong>{item.platform||"PS5"}</strong></div><div><small>VERSION</small><strong>{item.game_version||"EA SPORTS FC 26"}</strong></div><div><small>ONLINE ENTRY</small><strong>€{item.entry_fee_online??5}</strong></div><div><small>ON-SITE ENTRY</small><strong>€{item.entry_fee_onsite??10}</strong></div></>}
     </div></div><aside className="detail-register"><small>YOUR NEXT CHALLENGE</small><h2>{registered?"YOU'RE IN":open?"JOIN THE ARENA":"REGISTRATION CLOSED"}<span>.</span></h2>
       <p>{registered?"Your team registration is awaiting administrator approval.":open?"Register your team and submit your player roster.":"Registration is not currently available for this event."}</p>
       {open&&(registered?<button className="detail-action detail-cancel" disabled={busy||!dbReady} onClick={cancel}>{busy?"PLEASE WAIT...":"CANCEL REGISTRATION"}</button>:signedIn?<button className="detail-action" disabled={busy||!dbReady} onClick={()=>setShowForm(true)}>REGISTER YOUR TEAM ↗</button>:<Link className="detail-action" href="/login">SIGN IN TO REGISTER ↗</Link>)}
@@ -154,9 +159,9 @@ export default function TournamentDetailsPage(){
     </section>
     {bracket.length>0&&<section className="public-bracket-section" id="official-bracket"><div className="detail-section-label">OFFICIAL PLAYOFFS <i/></div><div className="team-roster-heading"><h2>TOURNAMENT <em>BRACKET.</em></h2><span>SINGLE ELIMINATION</span></div><p className="public-bracket-intro">Follow every matchup, see completed results and track which teams advance to the final.</p><div className="public-bracket-board">{Array.from(new Set(bracket.map(m=>m.round_number))).sort((a,b)=>a-b).map(round=><section className="public-bracket-round" key={round}><h3>{round===Math.max(...bracket.map(m=>m.round_number))?"FINAL":round===Math.max(...bracket.map(m=>m.round_number))-1?"SEMI-FINALS":round===Math.max(...bracket.map(m=>m.round_number))-2?"QUARTER-FINALS":"ROUND "+round}</h3>{bracket.filter(m=>m.round_number===round).map(match=><article className="public-bracket-match" key={match.id}><div className="public-bracket-match-top"><span>MATCH {match.match_number}</span><b className={match.status==="LIVE"?"public-match-live":""}>{match.status==="LIVE"?"● LIVE":match.status==="COMPLETED"?"COMPLETED":"UPCOMING"}</b></div>{[match.team_a,match.team_b].map((team,index)=><div className={"public-bracket-team "+(team&&match.winner_team===team?"public-bracket-winner":"")} key={index}><span>{team||"WAITING FOR QUALIFIER"}</span>{team&&<strong className="public-bracket-score">{index===0?match.score_a??"—":match.score_b??"—"}</strong>}{team&&match.winner_team===team&&<b>WINNER</b>}</div>)}</article>)}</section>)}</div></section>}
     <div className="detail-bottom"><span>VENTSPILS ARENA <b>•</b> COMPETE • CONNECT • CONQUER</span><span>LATVIA / 2026</span></div>
-    {showForm&&<div className="team-modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setShowForm(false);}}><section className="team-modal" role="dialog" aria-modal="true" aria-labelledby="team-form-title"><button className="team-modal-close" onClick={()=>setShowForm(false)} aria-label="Close">×</button><span className="detail-section-label">VENTSPILS ARENA / ENTRY FORM</span><h2 id="team-form-title">{isCS2?<>TEAM <em>REGISTRATION.</em></>:<>PLAYER <em>REGISTRATION.</em></>}</h2><p className="team-modal-intro">{isCS2?`This is a ${item.format} CS2 tournament. You can register up to ${maxPlayers} players.`:"Clash Royale tournaments are played 1v1. Register one player and provide their in-game tag."} Your entry will appear here after submission.</p>
-      <form onSubmit={submitRegistration} className="team-registration-form">{isCS2&&<label>USE A SAVED TEAM (OPTIONAL)<select value={selectedTeamId} onChange={e=>void selectSavedTeam(e.target.value)}><option value="">CREATE A NEW TOURNAMENT ROSTER</option>{savedTeams.map(team=><option key={team.id} value={team.id}>{team.name}</option>)}</select></label>}{isCS2&&<><label>TEAM NAME<input required minLength={2} maxLength={40} disabled={!!selectedTeamId} value={teamName} onChange={e=>setTeamName(e.target.value)} placeholder="Enter team name"/></label><label>CAPTAIN NAME<input required maxLength={40} disabled={!!selectedTeamId} value={captain} onChange={e=>setCaptain(e.target.value)} placeholder="In-game nickname"/></label></>}<div className="team-form-label">PLAYER ROSTER <span>{players.length}/${maxPlayers}</span></div>
-      {players.map((p,i)=><div className="team-player-fields" key={i}><label><span>PLAYER {i+1} NICKNAME</span><input required disabled={!!selectedTeamId} value={p.nickname} onChange={e=>updatePlayer(i,"nickname",e.target.value)} placeholder="In-game nickname"/></label>{isCS2?<label><span>STEAM PROFILE URL <b>* REQUIRED</b></span><input required type="url" disabled={!!selectedTeamId} value={p.steam} onChange={e=>updatePlayer(i,"steam",e.target.value)} placeholder="https://steamcommunity.com/id/username"/></label>:<label><span>CLASH ROYALE PLAYER TAG <b>* REQUIRED</b></span><input required value={p.clashRoyaleTag||""} onChange={e=>updatePlayer(i,"clashRoyaleTag",e.target.value)} placeholder="#ABC123" maxLength={16}/></label>}{players.length>1&&<button type="button" className="remove-player" onClick={()=>setPlayers(old=>old.filter((_,n)=>n!==i))}>REMOVE</button>}</div>)}
+    {showForm&&<div className="team-modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setShowForm(false);}}><section className="team-modal" role="dialog" aria-modal="true" aria-labelledby="team-form-title"><button className="team-modal-close" onClick={()=>setShowForm(false)} aria-label="Close">×</button><span className="detail-section-label">VENTSPILS ARENA / ENTRY FORM</span><h2 id="team-form-title">{isCS2?<>TEAM <em>REGISTRATION.</em></>:<>PLAYER <em>REGISTRATION.</em></>}</h2><p className="team-modal-intro">{isCS2?`This is a ${item.format} CS2 tournament. You can register up to ${maxPlayers} players.`:isFC?`Individual 1v1 tournament on ${item.platform||"PS5"}. Online entry €${item.entry_fee_online??5}; on-site entry €${item.entry_fee_onsite??10}. Payment is not processed on this form; the organizer confirms it separately.`:"Clash Royale tournaments are played 1v1. Register one player and provide their in-game tag."} Your entry will appear here after submission.</p>
+      <form onSubmit={submitRegistration} className="team-registration-form">{isCS2&&<label>USE A SAVED TEAM (OPTIONAL)<select value={selectedTeamId} onChange={e=>void selectSavedTeam(e.target.value)}><option value="">CREATE A NEW TOURNAMENT ROSTER</option>{savedTeams.map(team=><option key={team.id} value={team.id}>{team.name}</option>)}</select></label>}{isFC&&<><label>FIRST NAME<input required minLength={2} maxLength={60} value={fcName} onChange={e=>setFcName(e.target.value)} placeholder="First name"/></label><label>SURNAME<input required minLength={2} maxLength={60} value={fcSurname} onChange={e=>setFcSurname(e.target.value)} placeholder="Surname"/></label><label>PHONE NUMBER<input required type="tel" minLength={5} maxLength={30} value={fcPhone} onChange={e=>setFcPhone(e.target.value)} placeholder="+371 ..."/></label><label>EMAIL<input required type="email" maxLength={120} value={fcEmail} onChange={e=>setFcEmail(e.target.value)} placeholder="name@example.com"/></label><label>PLATFORM<select value={fcPlatform} onChange={e=>setFcPlatform(e.target.value)}><option value="PS5">PlayStation 5</option><option value="PS4">PlayStation 4</option><option value="Xbox">Xbox</option><option value="PC">PC</option></select></label></>}{isCS2&&<><label>TEAM NAME<input required minLength={2} maxLength={40} disabled={!!selectedTeamId} value={teamName} onChange={e=>setTeamName(e.target.value)} placeholder="Enter team name"/></label><label>CAPTAIN NAME<input required maxLength={40} disabled={!!selectedTeamId} value={captain} onChange={e=>setCaptain(e.target.value)} placeholder="In-game nickname"/></label></>}<div className="team-form-label">PLAYER ROSTER <span>{players.length}/${maxPlayers}</span></div>
+      {players.map((p,i)=><div className="team-player-fields" key={i}><label><span>PLAYER {i+1} NICKNAME</span><input required disabled={!!selectedTeamId} value={p.nickname} onChange={e=>updatePlayer(i,"nickname",e.target.value)} placeholder="In-game nickname"/></label>{isCS2?<label><span>STEAM PROFILE URL <b>* REQUIRED</b></span><input required type="url" disabled={!!selectedTeamId} value={p.steam} onChange={e=>updatePlayer(i,"steam",e.target.value)} placeholder="https://steamcommunity.com/id/username"/></label>:isClash?<label><span>CLASH ROYALE PLAYER TAG <b>* REQUIRED</b></span><input required value={p.clashRoyaleTag||""} onChange={e=>updatePlayer(i,"clashRoyaleTag",e.target.value)} placeholder="#ABC123" maxLength={16}/></label>:null}{players.length>1&&<button type="button" className="remove-player" onClick={()=>setPlayers(old=>old.filter((_,n)=>n!==i))}>REMOVE</button>}</div>)}
       {!selectedTeamId&&players.length<maxPlayers&&<button type="button" className="add-player" onClick={()=>setPlayers(old=>old.length<maxPlayers?[...old,{nickname:"",steam:"",clashRoyaleTag:""}]:old)}>+ ADD PLAYER</button>}
       {message&&<p className="detail-message" role="status">{message}</p>}<button className="detail-action" type="submit" disabled={busy}>{busy?"SUBMITTING...":isCS2?"SUBMIT TEAM REGISTRATION ↗":"SUBMIT PLAYER REGISTRATION ↗"}</button></form>
     </section></div>}
