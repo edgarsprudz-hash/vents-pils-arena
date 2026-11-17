@@ -446,3 +446,27 @@ main{width:100%;max-width:100%;min-width:0}
 .profile-totp-setup{margin-top:14px;padding:18px;border:1px solid #41434b;background:#0d0f13}.profile-totp-setup>p{font-size:10px;color:#bbb;line-height:1.7;margin:0 0 15px}.profile-totp-setup>img{display:block;width:170px;height:170px;padding:9px;margin:0 auto 16px;background:#fff;image-rendering:auto}.profile-totp-setup>small{display:block;font-size:9px;color:#999;margin-bottom:7px}.profile-totp-setup>code{display:block;padding:11px;background:#191b21;color:#ff777d;font-size:12px;letter-spacing:1.5px;overflow-wrap:anywhere}
 .profile-editor-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 28px;border-top:1px solid #ffffff18;background:#0a0b0e}.profile-editor-footer span{font-size:9px;color:#777;overflow-wrap:anywhere}.profile-editor-footer button{padding:9px 13px;border:1px solid #484b54;background:transparent;color:#ddd;font-size:8px;font-weight:800;letter-spacing:1px;cursor:pointer}
 @media(max-width:600px){.profile-editor-backdrop{padding:0;align-items:stretch}.profile-editor-modal{max-height:100dvh;width:100%;border-left:0;border-right:0}.profile-editor-header{padding:20px}.profile-editor-header h2{font-size:33px}.profile-editor-body{padding:0 20px 20px}.profile-editor-footer{padding:13px 20px}.profile-edit-trigger{padding:15px}.profile-edit-trigger small{max-width:230px;line-height:1.5}.friend-code-content strong{font-size:21px;letter-spacing:3px}.profile-security-card{align-items:flex-start;flex-direction:column}.profile-avatar-settings{align-items:flex-start}}
+
+
+/* Mobile fix: keep the account dropdown fully inside the viewport */
+@media (max-width: 700px) {
+  .account-menu {
+    position: relative;
+    flex: 0 0 auto;
+    max-width: 100%;
+  }
+
+  .account-dropdown {
+    left: 0;
+    right: auto;
+    width: min(320px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    box-sizing: border-box;
+  }
+
+  .account-dropdown a,
+  .account-dropdown button,
+  .dropdown-user {
+    min-width: 0;
+  }
+}
