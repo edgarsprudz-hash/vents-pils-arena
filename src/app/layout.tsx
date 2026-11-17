@@ -1,4 +1,5 @@
 import "./globals.css";
+import "./components/AIHelpWidget.css";
 import { LanguageProvider } from "./components/LanguageProvider";
 import LanguageSwitcher from "./components/LanguageSwitcher";
 import MaintenanceGate from "./components/MaintenanceGate";
