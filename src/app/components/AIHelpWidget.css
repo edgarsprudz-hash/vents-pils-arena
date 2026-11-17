@@ -1,9 +1,9 @@
-.va-ai-root{position:fixed;right:22px;bottom:22px;z-index:10020;font-family:Inter,Arial,sans-serif;color:#f5f5f6}
-.va-ai-launcher{width:58px;height:58px;border:1px solid #f0444d;border-radius:50%;background:#e72f39;color:#fff;box-shadow:0 8px 30px #0009;display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:900;letter-spacing:.5px;cursor:pointer;transition:transform .2s,background .2s}
+.va-ai-root{position:fixed!important;right:22px;bottom:22px;z-index:2147483000!important;font-family:Inter,Arial,sans-serif;color:#f5f5f6;pointer-events:none!important;isolation:isolate}
+.va-ai-launcher{position:relative;z-index:1;pointer-events:auto!important;touch-action:manipulation;width:58px;height:58px;border:1px solid #f0444d;border-radius:50%;background:#e72f39;color:#fff;box-shadow:0 8px 30px #0009;display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:900;letter-spacing:.5px;cursor:pointer;transition:transform .2s,background .2s}
 .va-ai-launcher:hover{transform:translateY(-2px);background:#c92530}
 .va-ai-launcher.is-open{font-size:28px;background:#17191e;border-color:#555}
 .va-ai-launcher-dot{width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 9px #fff}
-.va-ai-panel{position:absolute;right:0;bottom:72px;width:min(370px,calc(100vw - 28px));height:min(570px,calc(100dvh - 120px));min-height:360px;display:flex;flex-direction:column;overflow:hidden;border:1px solid #393b43;background:#101115;box-shadow:0 22px 70px #000b}
+.va-ai-panel{position:absolute;z-index:2;pointer-events:auto!important;right:0;bottom:72px;width:min(370px,calc(100vw - 28px));height:min(570px,calc(100dvh - 120px));min-height:360px;display:flex;flex-direction:column;overflow:hidden;border:1px solid #393b43;background:#101115;box-shadow:0 22px 70px #000b}
 .va-ai-header{display:flex;align-items:center;gap:12px;padding:15px 16px;border-bottom:1px solid #ffffff18;background:linear-gradient(105deg,#24171a,#15161b)}
 .va-ai-mark{width:36px;height:36px;display:grid;place-items:center;background:#ed303a;color:#fff;font-size:12px;font-weight:900;letter-spacing:1px}
 .va-ai-header>div{display:grid;gap:4px;min-width:0}.va-ai-header strong{font-size:10px;letter-spacing:1.4px}.va-ai-header small{font-size:9px;color:#92949d}
