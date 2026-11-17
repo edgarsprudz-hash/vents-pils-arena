@@ -161,8 +161,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ reply, ticketCreated: true, ticketNumber: data.ticket_number });
     }
 
-    const reply = typeof result.output_text === "string" ? result.output_text.trim() : "";
-    if (!reply) return NextResponse.json({ error: "I couldn't prepare a reply. Please try again." }, { status: 502 });
+    const outputText = Array.isArray(result.output)
+      ? result.output
+          .filter((item: any) => item.type === "message" && Array.isArray(item.content))
+          .flatMap((item: any) => item.content)
+          .filter((part: any) => part.type === "output_text" && typeof part.text === "string")
+          .map((part: any) => part.text)
+          .join("\\n")
+      : "";
+    const reply = (typeof result.output_text === "string" && result.output_text.trim()
+      ? result.output_text
+      : outputText).trim();
+    if (!reply) {
+      console.error("OpenAI assistant returned no text:", JSON.stringify({
+        status: result.status,
+        outputTypes: Array.isArray(result.output) ? result.output.map((item: any) => item.type) : [],
+        incompleteReason: result.incomplete_details?.reason || null,
+      }));
+      return NextResponse.json({ error: "The assistant returned an empty reply. Please try again." }, { status: 502 });
+    }
     return NextResponse.json({ reply, ticketCreated: false });
   } catch (error) {
     console.error("Assistant route error:", error instanceof Error ? error.name : "Unknown error");
