@@ -1,0 +1,23 @@
+.va-ai-root{position:fixed;right:22px;bottom:22px;z-index:10020;font-family:Inter,Arial,sans-serif;color:#f5f5f6}
+.va-ai-launcher{width:58px;height:58px;border:1px solid #f0444d;border-radius:50%;background:#e72f39;color:#fff;box-shadow:0 8px 30px #0009;display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:900;letter-spacing:.5px;cursor:pointer;transition:transform .2s,background .2s}
+.va-ai-launcher:hover{transform:translateY(-2px);background:#c92530}
+.va-ai-launcher.is-open{font-size:28px;background:#17191e;border-color:#555}
+.va-ai-launcher-dot{width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 9px #fff}
+.va-ai-panel{position:absolute;right:0;bottom:72px;width:min(370px,calc(100vw - 28px));height:min(570px,calc(100dvh - 120px));min-height:360px;display:flex;flex-direction:column;overflow:hidden;border:1px solid #393b43;background:#101115;box-shadow:0 22px 70px #000b}
+.va-ai-header{display:flex;align-items:center;gap:12px;padding:15px 16px;border-bottom:1px solid #ffffff18;background:linear-gradient(105deg,#24171a,#15161b)}
+.va-ai-mark{width:36px;height:36px;display:grid;place-items:center;background:#ed303a;color:#fff;font-size:12px;font-weight:900;letter-spacing:1px}
+.va-ai-header>div{display:grid;gap:4px;min-width:0}.va-ai-header strong{font-size:10px;letter-spacing:1.4px}.va-ai-header small{font-size:9px;color:#92949d}
+.va-ai-header>button{margin-left:auto;width:30px;height:30px;border:1px solid #ffffff25;background:transparent;color:#ddd;font-size:22px;cursor:pointer}
+.va-ai-messages{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:11px;padding:17px 14px}
+.va-ai-bubble{max-width:88%;padding:11px 12px;font-size:12px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+.va-ai-bubble.assistant{align-self:flex-start;border:1px solid #34363e;background:#1a1c22;color:#e5e5e7}
+.va-ai-bubble.user{align-self:flex-end;background:#a9232c;color:#fff}
+.va-ai-thinking,.va-ai-privacy{font-size:9px;letter-spacing:.4px;color:#858791}
+.va-ai-ticket{align-self:flex-start;padding:9px 11px;border:1px solid #3c765d;color:#8ce0b2;font-size:9px;font-weight:900;letter-spacing:1px}
+.va-ai-error{font-size:10px;color:#ff858a;line-height:1.5}
+.va-ai-compose{display:flex;gap:8px;padding:12px;border-top:1px solid #ffffff18;background:#0c0d10}
+.va-ai-compose input{flex:1;min-width:0;height:42px;padding:0 12px;border:1px solid #373941;background:#17191e;color:#fff;font:11px Inter,Arial;outline:none}
+.va-ai-compose input:focus{border-color:#ed303a}.va-ai-compose input::placeholder{color:#777984}
+.va-ai-compose button{width:43px;height:42px;border:0;background:#ed303a;color:#fff;font-size:21px;cursor:pointer}.va-ai-compose button:disabled{opacity:.4;cursor:default}
+.va-ai-privacy{margin:0;padding:0 13px 11px;background:#0c0d10;font-size:8px}
+@media(max-width:600px){.va-ai-root{right:13px;bottom:14px}.va-ai-launcher{width:52px;height:52px}.va-ai-panel{bottom:64px;width:min(370px,calc(100vw - 26px));height:min(560px,calc(100dvh - 100px))}}
