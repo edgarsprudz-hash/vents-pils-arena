@@ -59,7 +59,7 @@ const tool = {
 };
 
 function validEmail(value: unknown): value is string {
-  return typeof value === "string" && value.length <= 254 && /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(value);
+  return typeof value === "string" && value.length <= 254 && /^[^\s@]+@[^\s@]+\\.[^\s@]+$/.test(value);
 }
 
 export async function POST(request: NextRequest) {
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
         headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           model: MODEL,
-          instructions: instructions(language, page) + "\\nThe support ticket was successfully created. Confirm this clearly and include the ticket number. Do not call any tools.",
+          instructions: instructions(language, page) + "\nThe support ticket was successfully created. Confirm this clearly and include the ticket number. Do not call any tools.",
           input: [
             ...result.output,
             { type: "function_call_output", call_id: call.call_id, output: JSON.stringify({ success: true, ticket_number: data.ticket_number }) },
