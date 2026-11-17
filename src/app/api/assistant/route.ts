@@ -59,7 +59,7 @@ const tool = {
 };
 
 function validEmail(value: unknown): value is string {
-  return typeof value === "string" && value.length <= 254 && /^[^\s@]+@[^\s@]+\\.[^\s@]+$/.test(value);
+  return typeof value === "string" && value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
 export async function POST(request: NextRequest) {
