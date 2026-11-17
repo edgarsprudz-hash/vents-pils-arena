@@ -12,9 +12,12 @@ export const metadata = {
     "VENTSPILS ARENA ir platforma dažādu spēļu turnīriem Latvijā — piesakies sacensībām, veido komandas, seko rezultātiem un pievienojies spēļu kopienai.",
   applicationName: "VENTSPILS ARENA",
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
-    shortcut: "/icon.svg",
-    apple: "/icon.svg",
+    icon: [
+      { url: "/favicon-64.png", type: "image/png", sizes: "64x64" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon-64.png",
+    apple: [{ url: "/favicon-64.png", sizes: "64x64", type: "image/png" }],
   },
   openGraph: {
     title: "VENTSPILS ARENA — spēļu turnīri un e-sporta kopiena",
