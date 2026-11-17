@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.aikey) {
       return NextResponse.json({ error: "The assistant is not configured yet." }, { status: 503 });
     }
     const body = await request.json();
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     const openaiResponse = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
-      headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${process.env.aikey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: MODEL,
         instructions: instructions(language, page),
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
 
       const followup = await fetch("https://api.openai.com/v1/responses", {
         method: "POST",
-        headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
+        headers: { Authorization: `Bearer ${process.env.aikey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           model: MODEL,
           instructions: instructions(language, page) + "\nThe support ticket was successfully created. Confirm this clearly and include the ticket number. Do not call any tools.",
