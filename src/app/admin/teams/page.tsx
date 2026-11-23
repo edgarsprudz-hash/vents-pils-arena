@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
 type Tournament = { id: string; title: string; game: string; format: string; entry_fee_onsite?: number | null };
-type Team = { id: string; tournament_id: string; team_name: string; captain_name: string; roster: any[]; status: string; created_at: string; tournaments?: { title: string } | null };
+type Team = { id: string; tournament_id: string; team_name: string; captain_name: string; contact_name?: string | null; contact_surname?: string | null; contact_phone?: string | null; contact_email?: string | null; roster: any[]; status: string; created_at: string; tournaments?: { title: string } | null };
 
 export default function TeamsAdmin() {
   const router = useRouter();
@@ -17,6 +17,10 @@ export default function TeamsAdmin() {
   const [eventId, setEventId] = useState("");
   const [teamName, setTeamName] = useState("");
   const [captain, setCaptain] = useState("");
+  const [contactName, setContactName] = useState("");
+  const [contactSurname, setContactSurname] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
   const [players, setPlayers] = useState("");
 
   async function load() {
@@ -27,7 +31,7 @@ export default function TeamsAdmin() {
     if (profile?.role !== "SUPER_ADMIN") { setMsg("ACCESS RESTRICTED"); return; }
     setOk(true);
     const [{ data: teams, error }, { data: tournaments }] = await Promise.all([
-      supabase.from("tournament_registrations").select("id,tournament_id,team_name,captain_name,roster,status,created_at,tournaments(title)").order("created_at", { ascending: false }),
+      supabase.from("tournament_registrations").select("id,tournament_id,team_name,captain_name,contact_name,contact_surname,contact_phone,contact_email,roster,status,created_at,tournaments(title)").order("created_at", { ascending: false }),
       supabase.from("tournaments").select("id,title,game,format,entry_fee_onsite").order("event_date", { ascending: false })
     ]);
     if (error) setMsg(error.message);
@@ -48,6 +52,10 @@ export default function TeamsAdmin() {
       user_id: null,
       team_name: teamName.trim(),
       captain_name: captain.trim(),
+      contact_name: contactName.trim(),
+      contact_surname: contactSurname.trim(),
+      contact_phone: contactPhone.trim(),
+      contact_email: contactEmail.trim(),
       roster,
       status: "REGISTERED",
       payment_status: "PAID",
@@ -57,7 +65,7 @@ export default function TeamsAdmin() {
     if (error) setMsg(error.message);
     else {
       setMsg("TEAM ADDED TO TOURNAMENT.");
-      setTeamName(""); setCaptain(""); setPlayers("");
+      setTeamName(""); setCaptain(""); setContactName(""); setContactSurname(""); setContactPhone(""); setContactEmail(""); setPlayers("");
       await load();
     }
     setSaving(false);
@@ -78,13 +86,16 @@ export default function TeamsAdmin() {
         <div className="admin-section-title"><div><span>MANUAL TEAM ENTRY</span><h2>ADD A TEAM</h2></div><small>SUPER ADMIN ONLY</small></div>
         <form className="admin-form" onSubmit={addTeam}>
           <label>TOURNAMENT<select required value={eventId} onChange={e => setEventId(e.target.value)}><option value="" disabled>SELECT TOURNAMENT</option>{events.map(t => <option key={t.id} value={t.id}>{t.title} — {t.game} / {t.format}</option>)}</select></label>
-          <div className="admin-form-grid"><label>TEAM NAME<input required minLength={2} maxLength={40} value={teamName} onChange={e => setTeamName(e.target.value)} placeholder="TEAM NAME"/></label><label>CAPTAIN NAME<input required value={captain} onChange={e => setCaptain(e.target.value)} placeholder="CAPTAIN"/></label></div>
+          <div className="admin-form-grid"><label>TEAM NAME<input required minLength={2} maxLength={40} value={teamName} onChange={e => setTeamName(e.target.value)} placeholder="TEAM NAME"/></label><label>CAPTAIN / PLAYER NAME<input required value={captain} onChange={e => setCaptain(e.target.value)} placeholder="CAPTAIN"/></label></div>
+          <div className="admin-section-title"><div><span>PLAYER CONTACT DETAILS</span><h2>CONTACT INFORMATION</h2></div><small>REQUIRED</small></div>
+          <div className="admin-form-grid"><label>FIRST NAME<input required value={contactName} onChange={e => setContactName(e.target.value)} placeholder="FIRST NAME"/></label><label>LAST NAME<input required value={contactSurname} onChange={e => setContactSurname(e.target.value)} placeholder="LAST NAME"/></label></div>
+          <div className="admin-form-grid"><label>PHONE NUMBER<input required type="tel" value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="+371..."/></label><label>EMAIL ADDRESS<input required type="email" value={contactEmail} onChange={e => setContactEmail(e.target.value)} placeholder="name@example.com"/></label></div>
           <label>ROSTER / ONE PLAYER PER LINE<textarea rows={5} value={players} onChange={e => setPlayers(e.target.value)} placeholder={"Player 1\nPlayer 2\nPlayer 3"}/></label>
           <div className="admin-form-actions"><button disabled={saving || !events.length}>{saving ? "ADDING TEAM..." : "ADD TEAM ↗"}</button></div>
         </form>
       </section>
       <div className="admin-section-title"><div><span>TEAM DATABASE</span><h2>ALL TOURNAMENT TEAMS</h2></div><small>{rows.length} TEAMS</small></div>
-      <div className="admin-list">{rows.map(r => <article className="admin-list-row" key={r.id}><div><small>{r.tournaments?.title || "TOURNAMENT"} / {r.status}</small><h3>{r.team_name}</h3><p>Captain: {r.captain_name} · {(r.roster || []).map((p: any) => p.nickname).join(", ")}</p></div><div className="admin-row-actions"><button className="admin-delete" onClick={() => remove(r.id)}>DELETE</button></div></article>)}{!rows.length && <div className="admin-empty">No teams yet.</div>}</div>
+      <div className="admin-list">{rows.map(r => <article className="admin-list-row" key={r.id}><div><small>{r.tournaments?.title || "TOURNAMENT"} / {r.status}</small><h3>{r.team_name}</h3><p>Captain: {r.captain_name} · {(r.roster || []).map((p: any) => p.nickname).join(", ")}</p><p>Contact: {[r.contact_name, r.contact_surname].filter(Boolean).join(" ")} · {r.contact_phone || "No phone"} · {r.contact_email || "No email"}</p></div><div className="admin-row-actions"><button className="admin-delete" onClick={() => remove(r.id)}>DELETE</button></div></article>)}{!rows.length && <div className="admin-empty">No teams yet.</div>}</div>
     </>}
     {msg && <p className="admin-feedback">{msg}</p>}
     <div className="admin-footer-actions"><Link href="/admin">← ADMIN CONTROL</Link><Link href="/teams">PUBLIC TEAMS ↗</Link></div>
