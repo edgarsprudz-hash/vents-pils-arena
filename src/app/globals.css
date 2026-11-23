@@ -470,3 +470,12 @@ main{width:100%;max-width:100%;min-width:0}
     min-width: 0;
   }
 }
+
+
+/* Team Entries — event filter control */
+.admin-event-filter{position:relative;display:grid;grid-template-columns:minmax(150px,.8fr) minmax(240px,1.5fr) auto;align-items:center;gap:22px;margin:0 0 22px;padding:18px 20px;border:1px solid #383a43;background:linear-gradient(105deg,#1b1d24 0%,#121419 58%,#1a1115 100%);box-shadow:0 14px 36px #0005;overflow:hidden}
+.admin-event-filter:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#ef3038;box-shadow:0 0 18px #ef3038a0}
+.admin-event-filter-copy{display:grid;gap:5px}.admin-event-filter-copy span,.admin-event-select-wrap>span,.admin-event-count span{font-size:8px;font-weight:800;letter-spacing:1.6px;color:#858892}.admin-event-filter-copy strong{font:900 22px/.95 'Barlow Condensed',Impact;letter-spacing:.5px;color:#f4f4f5}
+.admin-event-select-wrap{position:relative;display:grid;gap:8px;min-width:0}.admin-event-select-wrap select{appearance:none;-webkit-appearance:none;width:100%;height:48px;padding:0 46px 0 15px;border:1px solid #4a4c55;border-radius:0;outline:none;background:linear-gradient(100deg,#101217,#1b1d24);color:#f5f5f6;font:800 10px Inter,Arial;letter-spacing:1px;cursor:pointer;transition:border-color .2s,box-shadow .2s}.admin-event-select-wrap select:hover,.admin-event-select-wrap select:focus{border-color:#ef454d;box-shadow:0 0 0 2px #ef30381c,0 0 22px #ef303812}.admin-event-select-wrap select option{background:#15171d;color:#fff}.admin-event-select-wrap>i{position:absolute;right:16px;bottom:13px;color:#ef555c;font-size:18px;font-style:normal;pointer-events:none;line-height:1}
+.admin-event-count{display:grid;justify-items:end;gap:3px;padding-left:18px;border-left:1px solid #ffffff1c}.admin-event-count strong{font:900 27px/.9 'Barlow Condensed',Impact;color:#fff}.admin-event-count span{font-size:7px;white-space:nowrap}
+@media(max-width:600px){.admin-event-filter{grid-template-columns:1fr auto;gap:14px;padding:16px 14px;margin-bottom:18px}.admin-event-filter-copy{grid-column:1/-1;padding-bottom:12px;border-bottom:1px solid #ffffff16}.admin-event-filter-copy strong{font-size:20px}.admin-event-select-wrap{grid-column:1;min-width:0}.admin-event-select-wrap select{height:48px;padding-left:11px;padding-right:34px;font-size:9px;letter-spacing:.5px}.admin-event-select-wrap>i{right:11px}.admin-event-count{grid-column:2;grid-row:2;padding-left:12px}.admin-event-count strong{font-size:24px}.admin-event-count span{font-size:6px;letter-spacing:1px}}
