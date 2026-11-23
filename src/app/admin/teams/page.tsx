@@ -4,7 +4,7 @@ import { useEffect, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
-type Tournament = { id: string; title: string; game: string; format: string };
+type Tournament = { id: string; title: string; game: string; format: string; entry_fee_onsite?: number | null };
 type Team = { id: string; tournament_id: string; team_name: string; captain_name: string; roster: any[]; status: string; created_at: string; tournaments?: { title: string } | null };
 
 export default function TeamsAdmin() {
@@ -28,7 +28,7 @@ export default function TeamsAdmin() {
     setOk(true);
     const [{ data: teams, error }, { data: tournaments }] = await Promise.all([
       supabase.from("tournament_registrations").select("id,tournament_id,team_name,captain_name,roster,status,created_at,tournaments(title)").order("created_at", { ascending: false }),
-      supabase.from("tournaments").select("id,title,game,format").order("event_date", { ascending: false })
+      supabase.from("tournaments").select("id,title,game,format,entry_fee_onsite").order("event_date", { ascending: false })
     ]);
     if (error) setMsg(error.message);
     else setRows((teams || []) as any);
@@ -49,7 +49,10 @@ export default function TeamsAdmin() {
       team_name: teamName.trim(),
       captain_name: captain.trim(),
       roster,
-      status: "REGISTERED"
+      status: "REGISTERED",
+      payment_status: "PAID",
+      payment_method: "ONSITE",
+      entry_fee: events.find(t => t.id === eventId)?.entry_fee_onsite ?? 10
     });
     if (error) setMsg(error.message);
     else {
