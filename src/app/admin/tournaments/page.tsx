@@ -5,7 +5,8 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
-type Tournament = { id: string; title: string; game: string; description: string; event_date: string | null; location: string; status: string; format: string };\ntype Match = { id:string; tournament_id:string; round_number:number; match_number:number; team_a:string|null; team_b:string|null; winner_team:string|null; score_a:number|null; score_b:number|null; next_match_id:string|null; next_slot:"A"|"B"|null; status:string; cybershoke_url?:string|null; map_name?:string|null };
+type Tournament = { id: string; title: string; game: string; description: string; event_date: string | null; location: string; status: string; format: string };
+type Match = { id:string; tournament_id:string; round_number:number; match_number:number; team_a:string|null; team_b:string|null; winner_team:string|null; score_a:number|null; score_b:number|null; next_match_id:string|null; next_slot:"A"|"B"|null; status:string; cybershoke_url?:string|null; map_name?:string|null };
 const blank = { title: "", game: "CS2", description: "", event_date: "", location: "Ventspils, Latvia", status: "DRAFT", format: "5v5", platform: "PS5", game_version: "EA SPORTS FC 26", entry_fee_online: "5", entry_fee_onsite: "10", club_selection: "FREE" };
 
 export default function AdminTournamentsPage() {
@@ -16,7 +17,12 @@ export default function AdminTournamentsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
-  const [allowed, setAllowed] = useState(false);\n  const [bracketTournament,setBracketTournament]=useState<Tournament|null>(null);\n  const [bracketMatches,setBracketMatches]=useState<Match[]>([]);\n  const [bracketTeams,setBracketTeams]=useState<{team_name:string}[]>([]);\n  const [bracketScores,setBracketScores]=useState<Record<string,{a:string;b:string}>>({});\n  const [bracketBusy,setBracketBusy]=useState(false);
+  const [allowed, setAllowed] = useState(false);
+  const [bracketTournament,setBracketTournament]=useState<Tournament|null>(null);
+  const [bracketMatches,setBracketMatches]=useState<Match[]>([]);
+  const [bracketTeams,setBracketTeams]=useState<{team_name:string}[]>([]);
+  const [bracketScores,setBracketScores]=useState<Record<string,{a:string;b:string}>>({});
+  const [bracketBusy,setBracketBusy]=useState(false);
 
   async function load() {
     if (!supabase) { setMessage("Supabase is not configured."); setLoading(false); return; }
