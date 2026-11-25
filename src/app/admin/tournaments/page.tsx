@@ -8,6 +8,15 @@ import { supabase } from "../../../lib/supabase";
 type Tournament = { id: string; title: string; game: string; description: string; event_date: string | null; location: string; status: string; format: string };
 type Match = { id:string; tournament_id:string; round_number:number; match_number:number; bracket_type?:string; group_number?:number|null; team_a:string|null; team_b:string|null; winner_team:string|null; score_a:number|null; score_b:number|null; next_match_id:string|null; next_slot:"A"|"B"|null; status:string; cybershoke_url?:string|null; map_name?:string|null };
 const blank = { title: "", game: "CS2", description: "", event_date: "", location: "Ventspils, Latvia", status: "DRAFT", format: "5v5", platform: "PS5", game_version: "EA SPORTS FC 26", entry_fee_online: "5", entry_fee_onsite: "10", club_selection: "FREE" };
+function autoAssignStations(matches:Match[],count:number):Match[]{
+  const assignments=new Map<string,string>();
+  const groups=matches.filter(m=>m.bracket_type==="GROUP").sort((a,b)=>(a.group_number||1)-(b.group_number||1)||a.match_number-b.match_number);
+  groups.forEach((m,i)=>assignments.set(m.id,`Station ${(i%count)+1}`));
+  const main=matches.filter(m=>m.bracket_type!=="GROUP").sort((a,b)=>a.round_number-b.round_number||a.match_number-b.match_number);
+  let round=-1;let index=0;
+  main.forEach(m=>{if(m.round_number!==round){round=m.round_number;index=0;}assignments.set(m.id,`Station ${(index++%count)+1}`);});
+  return matches.map(m=>({...m,map_name:assignments.get(m.id)||m.map_name||null}));
+}
 
 export default function AdminTournamentsPage() {
   const router = useRouter();
@@ -72,12 +81,21 @@ export default function AdminTournamentsPage() {
       supabase.from("tournament_registrations").select("team_name").eq("tournament_id",item.id).eq("status","REGISTERED").order("created_at")
     ]);
     if(m.error)setBracketMessage("Ошибка загрузки матчей: "+m.error.message);
-    else setBracketMatches((m.data||[]) as Match[]);
+    else {
+      const loaded=(m.data||[]) as Match[];
+      if(item.game==="EA SPORTS FC"&&loaded.length){
+        const assigned=autoAssignStations(loaded,stationCount);
+        const updates=await Promise.all(assigned.map(x=>supabase.from("tournament_matches").update({map_name:x.map_name,updated_at:new Date().toISOString()}).eq("id",x.id)));
+        const failed=updates.find(x=>x.error);
+        if(failed?.error)setBracketMessage("Не удалось автоматически назначить станции: "+failed.error.message);
+        setBracketMatches(assigned);
+      }else setBracketMatches(loaded);
+    }
     if(t.error)setBracketMessage("Ошибка загрузки участников: "+t.error.message);
     setBracketTeams((t.data||[]).filter(x=>x.team_name).map(x=>({team_name:x.team_name})));
     setBracketBusy(false);
   }
-  async function assignStations(){if(!supabase||!bracketTournament||bracketTournament.game!=="EA SPORTS FC"||!bracketMatches.length)return;setBracketBusy(true);setBracketMessage("");try{const ordered=[...bracketMatches].sort((a,b)=>a.round_number-b.round_number||a.match_number-b.match_number);const updated=ordered.map(m=>({...m,map_name:`Station ${((m.match_number-1)%stationCount)+1}`}));for(const m of updated){const {error}=await supabase.from("tournament_matches").update({map_name:m.map_name,updated_at:new Date().toISOString()}).eq("id",m.id);if(error)throw error;}setBracketMatches(updated);setBracketMessage(`Станции автоматически распределены: ${stationCount} доступно.`);}catch(error:any){setBracketMessage("Не удалось назначить станции: "+(error?.message||"ошибка"));}finally{setBracketBusy(false);}}
+  async function assignStations(){if(!supabase||!bracketTournament||bracketTournament.game!=="EA SPORTS FC"||!bracketMatches.length)return;setBracketBusy(true);setBracketMessage("");try{const updated=autoAssignStations(bracketMatches,stationCount);for(const m of updated){const {error}=await supabase.from("tournament_matches").update({map_name:m.map_name,updated_at:new Date().toISOString()}).eq("id",m.id);if(error)throw error;}setBracketMatches(updated);setBracketMessage(`Станции автоматически распределены: ${stationCount} доступно.`);}catch(error:any){setBracketMessage("Не удалось назначить станции: "+(error?.message||"ошибка"));}finally{setBracketBusy(false);}}
   async function createBracket(){
     if(!supabase||!bracketTournament||bracketBusy)return;
     setBracketMessage("");
