@@ -77,7 +77,7 @@ export default function AdminTournamentsPage() {
     setBracketTeams((t.data||[]).filter(x=>x.team_name).map(x=>({team_name:x.team_name})));
     setBracketBusy(false);
   }
-  async function assignStations(){if(!supabase||!bracketTournament||bracketTournament.game!=="EA SPORTS FC"||!bracketMatches.length)return;setBracketBusy(true);setBracketMessage("");try{const ordered=[...bracketMatches].sort((a,b)=>a.round_number-b.round_number||a.match_number-b.match_number);for(let i=0;i<ordered.length;i++){const station=`Station ${(i%stationCount)+1}`;const {error}=await supabase.from("tournament_matches").update({map_name:station,updated_at:new Date().toISOString()}).eq("id",ordered[i].id);if(error)throw error;}setBracketMatches(ordered.map((m,i)=>({...m,map_name:`Station ${(i%stationCount)+1}`})));setBracketMessage(`Все матчи распределены по ${stationCount} игровым станциям.`);}catch(error:any){setBracketMessage("Не удалось назначить станции: "+(error?.message||"ошибка"));}finally{setBracketBusy(false);}}
+  async function assignStations(){if(!supabase||!bracketTournament||bracketTournament.game!=="EA SPORTS FC"||!bracketMatches.length)return;setBracketBusy(true);setBracketMessage("");try{const ordered=[...bracketMatches].sort((a,b)=>a.round_number-b.round_number||a.match_number-b.match_number);const updated=ordered.map(m=>({...m,map_name:`Station ${((m.match_number-1)%stationCount)+1}`}));for(const m of updated){const {error}=await supabase.from("tournament_matches").update({map_name:m.map_name,updated_at:new Date().toISOString()}).eq("id",m.id);if(error)throw error;}setBracketMatches(updated);setBracketMessage(`Станции автоматически распределены: ${stationCount} доступно.`);}catch(error:any){setBracketMessage("Не удалось назначить станции: "+(error?.message||"ошибка"));}finally{setBracketBusy(false);}}
   async function createBracket(){
     if(!supabase||!bracketTournament||bracketBusy)return;
     setBracketMessage("");
@@ -91,7 +91,7 @@ export default function AdminTournamentsPage() {
         if(distribution==="RANDOM")for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
         const groups=Array.from({length:shuffled.length/4},(_,i)=>shuffled.slice(i*4,i*4+4));
         const rows:any[]=[];let matchNo=1;
-        groups.forEach((members,g)=>{for(let a=0;a<4;a++)for(let b=a+1;b<4;b++)rows.push({tournament_id:bracketTournament.id,round_number:1,match_number:matchNo,bracket_type:"GROUP",group_number:g+1,team_a:members[a],team_b:members[b],winner_team:null,score_a:null,score_b:null,next_match_id:null,next_slot:null,status:"SCHEDULED",...(bracketTournament.game==="EA SPORTS FC"?{map_name:`Station ${((matchNo-1)%stationCount)+1}`}:{})});matchNo++;});
+        groups.forEach((members,g)=>{for(let a=0;a<4;a++)for(let b=a+1;b<4;b++){rows.push({tournament_id:bracketTournament.id,round_number:1,match_number:matchNo,bracket_type:"GROUP",group_number:g+1,team_a:members[a],team_b:members[b],winner_team:null,score_a:null,score_b:null,next_match_id:null,next_slot:null,status:"SCHEDULED",...(bracketTournament.game==="EA SPORTS FC"?{map_name:`Station ${((matchNo-1)%stationCount)+1}`}:{})});matchNo++;}});
         const {error}=await supabase.from("tournament_matches").insert(rows);
         if(error)throw error;
         setBracketMessage("Группы созданы. У каждой команды будет по 3 матча. После сохранения всех результатов плей-офф создастся автоматически.");
@@ -109,7 +109,7 @@ export default function AdminTournamentsPage() {
       const padded:(string|null)[]=[...names,...Array(size-names.length).fill(null)];
       const total=Math.log2(size);
       const rows:any[]=[];
-      let stationIndex=0;for(let r=1;r<=total;r++)for(let m=1;m<=size/Math.pow(2,r);m++){rows.push({tournament_id:bracketTournament.id,round_number:r,match_number:m,bracket_type:"MAIN",team_a:r===1?padded[(m-1)*2]:null,team_b:r===1?padded[(m-1)*2+1]:null,winner_team:null,score_a:null,score_b:null,next_match_id:null,next_slot:null,status:"SCHEDULED",...(bracketTournament.game==="EA SPORTS FC"?{map_name:`Station ${(stationIndex++%stationCount)+1}`}:{})});}
+      for(let r=1;r<=total;r++)for(let m=1;m<=size/Math.pow(2,r);m++){rows.push({tournament_id:bracketTournament.id,round_number:r,match_number:m,bracket_type:"MAIN",team_a:r===1?padded[(m-1)*2]:null,team_b:r===1?padded[(m-1)*2+1]:null,winner_team:null,score_a:null,score_b:null,next_match_id:null,next_slot:null,status:"SCHEDULED",...(bracketTournament.game==="EA SPORTS FC"?{map_name:`Station ${((m-1)%stationCount)+1}`}:{})});}
       const {data,error}=await supabase.from("tournament_matches").insert(rows).select("*");
       if(error)throw error;
       const created=(data||[]) as Match[];
@@ -153,7 +153,7 @@ export default function AdminTournamentsPage() {
     let size=1;while(size<seeds.length)size*=2;
     const padded:(string|null)[]=[...seeds,...Array(size-seeds.length).fill(null)];
     const rounds=Math.log2(size);const rows:any[]=[];
-    let stationIndex=0;for(let r=1;r<=rounds;r++)for(let n=1;n<=size/Math.pow(2,r);n++)rows.push({tournament_id:tournamentId,round_number:r,match_number:n,bracket_type:"MAIN",team_a:r===1?padded[(n-1)*2]:null,team_b:r===1?padded[(n-1)*2+1]:null,winner_team:null,score_a:null,score_b:null,next_match_id:null,next_slot:null,status:"SCHEDULED",...(bracketTournament?.game==="EA SPORTS FC"?{map_name:`Station ${(stationIndex++%stationCount)+1}`}:{})});
+    for(let r=1;r<=rounds;r++)for(let n=1;n<=size/Math.pow(2,r);n++)rows.push({tournament_id:tournamentId,round_number:r,match_number:n,bracket_type:"MAIN",team_a:r===1?padded[(n-1)*2]:null,team_b:r===1?padded[(n-1)*2+1]:null,winner_team:null,score_a:null,score_b:null,next_match_id:null,next_slot:null,status:"SCHEDULED",...(bracketTournament?.game==="EA SPORTS FC"?{map_name:`Station ${((n-1)%stationCount)+1}`}:{})});
     const {data:created,error:insertError}=await supabase.from("tournament_matches").insert(rows).select("*");
     if(insertError)throw insertError;
     for(const m of (created||[]) as Match[])if(m.round_number<rounds){const next=(created||[]).find((x:any)=>x.round_number===m.round_number+1&&x.match_number===Math.ceil(m.match_number/2));const {error:linkError}=await supabase.from("tournament_matches").update({next_match_id:next?.id||null,next_slot:m.match_number%2?"A":"B"}).eq("id",m.id);if(linkError)throw linkError;}
