@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import "./home-redesign.css";
 import { useEffect, useState } from "react";
 import AuthNav from "./components/AuthNav";
 import { supabase } from "../lib/supabase";
@@ -21,7 +22,7 @@ export default function Home(){
     }
     load();return()=>{active=false;};
   },[]);
-  return <main>
+  return <main className="home-redesign">
     <header><b>V <span>VENTSPILS ARENA</span></b><nav>{t.nav.map((label,i)=><Link key={label} href={["/tournaments","/teams","/rankings","/news","/rules","/complaints"][i]}>{label}</Link>)}</nav><AuthNav /></header>
     <section className="hero"><small>{t.heroEyebrow}</small><h1>{t.heroTitle[0]}<br/><em>{t.heroTitle[1]}</em>{t.heroTitle[2] && <><br/>{t.heroTitle[2]}</> }</h1><p>{t.heroText}</p><Link className="button" href="/tournaments">{t.explore}</Link><label>COMPETE　•　CONNECT　•　CONQUER</label></section>
     <section className="upcoming-section">
