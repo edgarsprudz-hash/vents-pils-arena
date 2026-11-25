@@ -85,7 +85,7 @@ export default function AdminTournamentsPage() {
       const loaded=(m.data||[]) as Match[];
       if(item.game==="EA SPORTS FC"&&loaded.length){
         const assigned=autoAssignStations(loaded,stationCount);
-        const updates=await Promise.all(assigned.map(x=>supabase.from("tournament_matches").update({map_name:x.map_name,updated_at:new Date().toISOString()}).eq("id",x.id)));
+        const updates=await Promise.all(assigned.map(x=>supabase!.from("tournament_matches").update({map_name:x.map_name,updated_at:new Date().toISOString()}).eq("id",x.id)));
         const failed=updates.find(x=>x.error);
         if(failed?.error)setBracketMessage("Не удалось автоматически назначить станции: "+failed.error.message);
         setBracketMatches(assigned);
