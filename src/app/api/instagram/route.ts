@@ -34,7 +34,7 @@ export async function GET() {
   }
 
   try {
-    const profile = await graphGet("me?fields=id,username,account_type,media_count", token);
+    const profile = await graphGet("me?fields=id,username,media_count", token);
     const media = await graphGet(
       `${encodeURIComponent(String(profile.id))}/media?fields=id,caption,media_type,media_url,permalink,timestamp,thumbnail_url&limit=12`,
       token,
@@ -45,7 +45,6 @@ export async function GET() {
       profile: {
         id: profile.id,
         username: profile.username,
-        accountType: profile.account_type,
         mediaCount: profile.media_count,
       },
       media: media.data || [],
