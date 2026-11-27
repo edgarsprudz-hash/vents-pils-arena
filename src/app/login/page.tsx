@@ -15,6 +15,11 @@ export default function LoginPage() {
   const [mfaChallenge, setMfaChallenge] = useState<{ factorId: string; challengeId: string } | null>(null);
   const [mfaCode, setMfaCode] = useState("");
 
+  function getPostLoginPath() {
+    const requested = new URLSearchParams(window.location.search).get("next");
+    return requested && requested.startsWith("/") && !requested.startsWith("//") ? requested : "/";
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setMessage("");
     if (!supabase) { setMessage(ru ? "Supabase не настроен. Проверьте переменные окружения Vercel." : lv ? "Supabase nav konfigurēts. Pārbaudiet Vercel vides mainīgos." : "Supabase is not configured. Check the Vercel environment variables."); return; }
@@ -36,7 +41,7 @@ export default function LoginPage() {
     }
     setBusy(false);
     setMessage(ru ? "Вход выполнен." : lv ? "Pieteikšanās veiksmīga." : "Signed in successfully.");
-    window.location.href = "/";
+    window.location.href = getPostLoginPath();
   }
 
   async function verifyMfa(event: FormEvent<HTMLFormElement>) {
@@ -48,7 +53,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.mfa.verify({ factorId: mfaChallenge.factorId, challengeId: mfaChallenge.challengeId, code });
     setBusy(false);
     if (error) { setMessage(error.message); return; }
-    window.location.href = "/";
+    window.location.href = getPostLoginPath();
   }
 
   return <main className="event">
