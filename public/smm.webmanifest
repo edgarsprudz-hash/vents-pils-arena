@@ -1,0 +1,15 @@
+{
+  "id": "/smm",
+  "name": "CLAUDE SMM — VENTSPILS ARENA",
+  "short_name": "CLAUDE SMM",
+  "description": "Private social media management app for VENTSPILS ARENA.",
+  "start_url": "/smm",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#08090b",
+  "theme_color": "#08090b",
+  "icons": [
+    { "src": "/organizer-icon-v2.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "/favicon-64.png", "sizes": "64x64", "type": "image/png" }
+  ]
+}
