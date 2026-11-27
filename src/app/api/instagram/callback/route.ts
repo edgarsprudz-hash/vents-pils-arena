@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     "https://ventspilsarena.lat/api/instagram/callback";
   const appId = process.env.META_APP_ID;
   const appSecret = process.env.META_APP_SECRET;
-  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseUrl = (process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL);
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   const response = (page: NextResponse) => {
