@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     process.env.META_REDIRECT_URI ??
     "https://ventspilsarena.lat/api/instagram/callback";
 
-  if (!appId || !process.env.META_APP_SECRET || !process.env.SUPABASE_URL ||
+  if (!appId || !process.env.META_APP_SECRET || !(process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL) ||
       !process.env.SUPABASE_SERVICE_ROLE_KEY || !process.env.SMM_ADMIN_SECRET) {
     return NextResponse.json(
       { error: "Missing server configuration. Check META_APP_ID, META_APP_SECRET, META_REDIRECT_URI, SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY." },
