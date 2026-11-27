@@ -14,7 +14,8 @@ const systemPrompt = `Ты — VENTSPILS ARENA AI, собственный SMM- �
 Не добавляй хэштеги и эмодзи без запроса. Не публикуй ничего самостоятельно, не отправляй сообщения и не утверждай, что что-либо опубликовано. Все материалы требуют подтверждения руководителя. Отвечай на языке последнего сообщения пользователя.`;
 
 async function authorize(req: NextRequest) {
-  const token = req.headers.get("authorization")?.match(/^Bearer\\s+(.+)$/i)?.[1];
+  const authHeader = req.headers.get("authorization") || "";
+  const token = authHeader.toLowerCase().startsWith("bearer ") ? authHeader.slice(7).trim() : "";
   if (!token || !url || !serviceKey) throw new Error("Не настроена авторизация Supabase.");
   const db = createClient(url, serviceKey, { auth: { persistSession: false } });
   const { data: { user }, error } = await db.auth.getUser(token);
