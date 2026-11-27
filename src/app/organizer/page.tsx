@@ -110,11 +110,11 @@ export default function OrganizerPage() {
   async function signOut() { await supabase?.auth.signOut(); router.replace("/login"); }
 
   if (loading) return <main className="organizer-page"><div className="organizer-loading">{t.loading}</div></main>;
-  if (denied) return <main className="organizer-page"><section className="organizer-denied"><div className="organizer-mark">VA</div><span>VENTSPILS ARENA / ORGANIZER</span><h1>{t.denied}</h1><p>{t.deniedText}</p><a href="/login">{t.login}</a></section></main>;
+  if (denied) return <main className="organizer-page"><section className="organizer-denied"><img className="organizer-denied-logo" src="/ventspils-arena-logo.svg" alt="VENTSPILS ARENA" /><span>ORGANIZER ACCESS</span><h1>{t.denied}</h1><p>{t.deniedText}</p><a href="/login">{t.login}</a></section></main>;
 
   return <main className="organizer-page">
     <header className="organizer-topbar">
-      <a className="organizer-brand" href="/organizer"><span className="organizer-mark">VA</span><span>VENTSPILS ARENA<small>ORGANIZER APP</small></span></a>
+      <a className="organizer-brand" href="/organizer"><img className="organizer-brand-logo" src="/ventspils-arena-logo.svg" alt="VENTSPILS ARENA" /></a>
       <div className="organizer-top-actions"><span className="organizer-secure">● SECURE ACCESS</span><button onClick={signOut}>{t.logout}</button></div>
     </header>
     <div className="organizer-shell">
