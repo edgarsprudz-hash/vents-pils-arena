@@ -3,8 +3,10 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+// The app uses Instagram Login / Unified Login. This API uses graph.instagram.com,
+// not graph.facebook.com (which is used by the Facebook Login variant).
 const GRAPH_VERSION = "v24.0";
-const GRAPH_BASE = `https://graph.facebook.com/${GRAPH_VERSION}`;
+const GRAPH_BASE = `https://graph.instagram.com/${GRAPH_VERSION}`;
 
 type GraphError = { message?: string; type?: string; code?: number };
 
