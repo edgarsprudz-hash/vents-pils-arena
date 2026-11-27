@@ -22,6 +22,7 @@ export default function OrganizerPage() {
   const t = words[language] || words.en;
   const [loading, setLoading] = useState(true);
   const [denied, setDenied] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [selected, setSelected] = useState("");
   const [matches, setMatches] = useState<Match[]>([]);
@@ -65,6 +66,7 @@ export default function OrganizerPage() {
       const { data: profile, error } = await supabase.from("profiles").select("role").eq("id", session.user.id).maybeSingle();
       if (!active) return;
       if (error || !profile || !["SUPER_ADMIN", "ORGANIZER"].includes(profile.role)) { setDenied(true); setLoading(false); return; }
+      setIsSuperAdmin(profile.role === "SUPER_ADMIN");
       try { await load(); } catch (e) { setMessage(e instanceof Error ? e.message : t.error); }
       if (active) setLoading(false);
     })();
@@ -115,7 +117,7 @@ export default function OrganizerPage() {
   return <main className="organizer-page">
     <header className="organizer-topbar">
       <a className="organizer-brand" href="/organizer"><img className="organizer-brand-logo" src="/ventspils-arena-logo.svg" alt="VENTSPILS ARENA" /></a>
-      <div className="organizer-top-actions"><span className="organizer-secure">● SECURE ACCESS</span><button onClick={signOut}>{t.logout}</button></div>
+      <div className="organizer-top-actions">{isSuperAdmin && <a className="organizer-smm-link" href="/organizer/smm">CLAUDE SMM</a>}<span className="organizer-secure">● SECURE ACCESS</span><button onClick={signOut}>{t.logout}</button></div>
     </header>
     <div className="organizer-shell">
       <div className="organizer-intro"><span>{t.eyebrow} / VENTSPILS, LATVIA</span><h1>{t.title}<i>.</i></h1><p>{t.sub}</p></div>
