@@ -39,10 +39,40 @@ export default function AgentPage() {
     const next = [...messages, { role: "user" as const, content: prompt }];
     setMessages(next); setInput(""); setBusy(true); setError("");
     try {
+      // Share the saved Instagram Insights with the agent automatically.
+      const requestMessages = next.slice(-12);
+      try {
+        const saved = localStorage.getItem("va-instagram-insights");
+        if (saved) {
+          const stats = JSON.parse(saved);
+          const fields = ["followers", "reach", "views", "likes", "comments", "saves", "shares"];
+          const hasMetrics = fields.some((key) => stats[key] !== undefined && String(stats[key]).trim() !== "");
+          if (hasMetrics) {
+            const labels: Record<string, string> = {
+              followers: "Подписчики", reach: "Охват аккаунтов", views: "Просмотры",
+              likes: "Лайки", comments: "Комментарии", saves: "Сохранения", shares: "Репосты/отправки"
+            };
+            const report = fields
+              .filter((key) => stats[key] !== undefined && String(stats[key]).trim() !== "")
+              .map((key) => labels[key] + ": " + stats[key])
+              .join("; ");
+            const period = stats.period || "не указан";
+            requestMessages[requestMessages.length - 1] = {
+              ...requestMessages[requestMessages.length - 1],
+              content: requestMessages[requestMessages.length - 1].content +
+                "\\n\\nСОХРАНЁННАЯ СТАТИСТИКА INSTAGRAM @ventspilsarena (из раздела Analytics, период: " +
+                period + " дней): " + report +
+                ". Используй эти данные для анализа, если запрос касается Instagram или статистики. Не проси пользователя прислать их повторно. Отсутствующие показатели не выдумывай."
+            };
+          }
+        }
+      } catch {
+        // Ignore invalid local browser data and continue with the user's message.
+      }
       const response = await fetch("/api/agent", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token },
-        body: JSON.stringify({ messages: next.slice(-12) })
+        body: JSON.stringify({ messages: requestMessages })
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Не удалось получить ответ агента");
