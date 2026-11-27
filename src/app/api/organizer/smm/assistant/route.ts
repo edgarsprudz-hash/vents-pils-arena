@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 async function authorize(request: NextRequest) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\\s+/i, "");
+  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
   if (!token) return { error: NextResponse.json({ error: "Authentication required." }, { status: 401 }) };
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
