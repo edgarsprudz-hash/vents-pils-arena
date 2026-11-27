@@ -3,15 +3,15 @@ import type { Metadata, Viewport } from "next";
 export const metadata: Metadata = {
   title: "VENTSPILS ARENA Organizer",
   description: "Private match operations for VENTSPILS ARENA organizers.",
-  manifest: "/organizer.webmanifest",
+  manifest: "/organizer.webmanifest?v=2",
   applicationName: "VENTSPILS ARENA Organizer",
   appleWebApp: {
     capable: true,
-    title: "VA Organizer",
+    title: "VENTSPILS ARENA",
     statusBarStyle: "black-translucent"
   },
   icons: {
-    icon: "/organizer-icon.svg",
+    icon: "/organizer-icon-v2.svg",
     apple: "/favicon-64.png"
   },
   robots: { index: false, follow: false }
