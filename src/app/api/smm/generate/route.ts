@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 async function authorize(request: NextRequest) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\\s+/i, "");
+  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
   if (!token) return { error: NextResponse.json({ error: "Authentication required." }, { status: 401 }) };
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL, anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, service = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !anon || !service) return { error: NextResponse.json({ error: "SMM service is not configured." }, { status: 503 }) };
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Claude could not generate content. Check the Anthropic API key and model setting." }, { status: 502 });
     }
     const raw = Array.isArray(result.content) ? result.content.filter((x: any) => x.type === "text").map((x: any) => x.text).join("\\n") : "";
-    const cleaned = raw.replace(/^```json\\s*/i, "").replace(/^```\\s*/i, "").replace(/\\s*```$/, "").trim();
+    const cleaned = raw.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/, "").trim();
     let draft: any;
     try { draft = JSON.parse(cleaned); } catch { return NextResponse.json({ error: "Claude returned an invalid draft. Please try again." }, { status: 502 }); }
     const fields = ["title", "caption", "hashtags", "visual_brief", "recommended_time"];
