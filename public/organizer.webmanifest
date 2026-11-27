@@ -1,0 +1,15 @@
+{
+  "id": "/organizer",
+  "name": "VENTSPILS ARENA Organizer",
+  "short_name": "VA Organizer",
+  "description": "Private match operations app for VENTSPILS ARENA organizers.",
+  "start_url": "/organizer",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#08090b",
+  "theme_color": "#08090b",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "/favicon-64.png", "sizes": "64x64", "type": "image/png" }
+  ]
+}
