@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
   const base = `https://graph.instagram.com/${version}/`;
   async function get(path: string, params: Record<string, string>) {
     const url = new URL(base + path);
-    Object.entries({ ...params, access_token: token }).forEach(([key, value]) => url.searchParams.set(key, value));
+    Object.entries({ ...params, access_token: token as string }).forEach(([key, value]) => url.searchParams.set(key, value));
     const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(15000) });
     const data = await response.json();
     if (!response.ok || data.error) throw new Error(data.error?.message || "Instagram API request failed.");
