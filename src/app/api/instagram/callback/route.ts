@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
     }
 
     const longUrl = new URL("https://graph.instagram.com/access_token");
-    longUrl.searchParams.set("grant_type", "ig_exchange_token");
+    longUrl.searchParams.set("grant_type", "ig_exchange");
     longUrl.searchParams.set("client_secret", appSecret);
     longUrl.searchParams.set("access_token", shortData.access_token);
     const longResponse = await fetch(longUrl, { cache: "no-store" });
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
       throw new Error(profile.error?.message ?? "Could not read the Instagram professional account profile.");
     }
 
-    const instagramUserId = String(profile.user_id ?? profile.id ?? shortData.user_id);
+    const instagramUserId = String(profile.id ?? shortData.user_id);
     const expiresAt = new Date(Date.now() + Number(longData.expires_in ?? 5184000) * 1000).toISOString();
     const dbResponse = await fetch(
       `${supabaseUrl.replace(/\/$/, "")}/rest/v1/instagram_accounts?on_conflict=instagram_user_id`,
