@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import "./smm.css";
 
-type Post = { id:string; created_at:string; format:"POST"|"STORY"|"REEL"; language:string; topic:string; objective:string; title:string; caption:string; hashtags:string; visual_brief:string; recommended_time:string; status:string; };
+type InstagramData = { connected:boolean; account?:{username:string;accountType:string;followers:number;following:number;mediaCount:number}; insights?:{name:string;title?:string;period:string;values:{value:number|string;end_time:string}[]}[]; media?:{id:string;caption?:string;media_type:string;permalink?:string;timestamp:string;like_count?:number;comments_count?:number}[]; metricErrors?:string[]; error?:string; setupRequired?:boolean; fetchedAt?:string; };\ntype Post = { id:string; created_at:string; format:"POST"|"STORY"|"REEL"; language:string; topic:string; objective:string; title:string; caption:string; hashtags:string; visual_brief:string; recommended_time:string; status:string; };
 export default function SmmPage(){
   const router=useRouter();
   const [loading,setLoading]=useState(true),[denied,setDenied]=useState(false),[busy,setBusy]=useState(false);
@@ -16,11 +16,11 @@ export default function SmmPage(){
   const [language,setLanguage]=useState("lv");
   const [error,setError]=useState("");
   const [notice,setNotice]=useState("");
-  const [workingId,setWorkingId]=useState("");
+  const [workingId,setWorkingId]=useState("");\n  const [instagram,setInstagram]=useState<InstagramData|null>(null);\n  const [instagramBusy,setInstagramBusy]=useState(false);\n  const [instagramError,setInstagramError]=useState("");
   const token=useCallback(async()=>{const {data:{session}}=await supabase!.auth.getSession();if(!session){router.replace("/login?next=/smm");throw new Error("Session expired. Sign in again.");}return session.access_token;},[router]);
   const load=useCallback(async()=>{const access=await token();const res=await fetch("/api/smm",{headers:{Authorization:"Bearer "+access},cache:"no-store"});const data=await res.json();if(!res.ok)throw new Error(data.error||"Could not load queue.");setPosts(data.posts||[]);},[token]);
   useEffect(()=>{let active=true;(async()=>{if(!supabase){setDenied(true);setLoading(false);return;}const {data:{session}}=await supabase.auth.getSession();if(!session){router.replace("/login?next=/smm");return;}const {data:profile,error}=await supabase.from("profiles").select("role").eq("id",session.user.id).maybeSingle();if(!active)return;if(error||profile?.role!=="SUPER_ADMIN"){setDenied(true);setLoading(false);return;}try{await load();}catch(e){setError(e instanceof Error?e.message:"Unable to load SMM.");}if(active)setLoading(false);})();return()=>{active=false;};},[load,router]);
-  async function generate(e:React.FormEvent){e.preventDefault();if(busy)return;setBusy(true);setError("");setNotice("");try{const access=await token();const res=await fetch("/api/smm/generate",{method:"POST",headers:{Authorization:"Bearer "+access,"Content-Type":"application/json"},body:JSON.stringify({topic,objective,format,language})});const data=await res.json();if(!res.ok)throw new Error(data.error||"Claude could not create the draft.");setNotice("Claude created a draft. Review every detail before requesting approval.");await load();}catch(e){setError(e instanceof Error?e.message:"Generation failed.");}finally{setBusy(false);}}
+  async function loadInstagram(){setInstagramBusy(true);setInstagramError("");try{const access=await token();const res=await fetch("/api/smm/instagram",{headers:{Authorization:"Bearer "+access},cache:"no-store"});const data=await res.json();if(!res.ok)throw new Error(data.error||"Could not load Instagram insights.");setInstagram(data);}catch(e){setInstagramError(e instanceof Error?e.message:"Instagram connection failed.");}finally{setInstagramBusy(false);}}\n  async function generate(e:React.FormEvent){e.preventDefault();if(busy)return;setBusy(true);setError("");setNotice("");try{const access=await token();const res=await fetch("/api/smm/generate",{method:"POST",headers:{Authorization:"Bearer "+access,"Content-Type":"application/json"},body:JSON.stringify({topic,objective,format,language})});const data=await res.json();if(!res.ok)throw new Error(data.error||"Claude could not create the draft.");setNotice("Claude created a draft. Review every detail before requesting approval.");await load();}catch(e){setError(e instanceof Error?e.message:"Generation failed.");}finally{setBusy(false);}}
   async function action(id:string,action:"APPROVE"|"REJECT"|"REQUEST_APPROVAL"){setWorkingId(id);setError("");setNotice("");try{const access=await token();const res=await fetch("/api/smm",{method:"POST",headers:{Authorization:"Bearer "+access,"Content-Type":"application/json"},body:JSON.stringify({id,action})});const data=await res.json();if(!res.ok)throw new Error(data.error||"Action failed.");setNotice(data.note||"Content status updated.");await load();}catch(e){setError(e instanceof Error?e.message:"Action failed.");}finally{setWorkingId("");}}
   async function signOut(){await supabase?.auth.signOut();router.replace("/login");}
   if(loading)return <main className="smm-page"><div className="smm-denied">CHECKING SUPERADMIN ACCESS...</div></main>;
@@ -30,6 +30,17 @@ export default function SmmPage(){
     <div className="smm-shell">
       <section className="smm-hero"><div><span className="smm-kicker">SOCIAL MEDIA OPERATIONS / 001</span><h1>CONTROL CENTER<i>.</i></h1><p>Claude creates the strategy and drafts. You retain final publishing control.</p></div><span className="smm-online">● SUPERADMIN SESSION</span></section>
       {error&&<div className="smm-alert">{error}</div>}{notice&&<div className="smm-notice">{notice}</div>}
+      <section className="smm-panel smm-analytics">
+        <div className="smm-analytics-head"><div><span className="smm-kicker">INSTAGRAM / LIVE DATA</span><h2>ACCOUNT ANALYTICS.</h2><p className="smm-muted">Connect Meta credentials to view the real account profile, insights and latest media.</p></div><button className="smm-button" onClick={loadInstagram} disabled={instagramBusy}>{instagramBusy?"LOADING...":"SYNC INSTAGRAM"}</button></div>
+        {instagramError&&<div className="smm-alert">{instagramError}</div>}
+        {instagram?.account&&<><div className="smm-account-row"><strong>@{instagram.account.username}</strong><span>{instagram.account.accountType}</span><span>{instagram.account.followers??"—"} FOLLOWERS</span><span>{instagram.account.mediaCount??"—"} POSTS</span></div>
+          <div className="smm-metrics">{(instagram.insights||[]).map(metric=><div className="smm-metric" key={metric.name}><small>{(metric.title||metric.name).toUpperCase()}</small><strong>{metric.values?.length?String(metric.values[metric.values.length-1].value):"—"}</strong></div>)}</div>
+          {instagram.metricErrors?.map(item=><p className="smm-muted" key={item}>{item}</p>)}
+          <div className="smm-recent-media">{(instagram.media||[]).slice(0,6).map(item=><a href={item.permalink||"#"} target="_blank" rel="noreferrer" key={item.id}><strong>{item.media_type}</strong><span>{item.like_count??"—"} likes · {item.comments_count??"—"} comments</span><small>{new Date(item.timestamp).toLocaleDateString()}</small></a>)}</div>
+          <small className="smm-muted">Synced {instagram.fetchedAt?new Date(instagram.fetchedAt).toLocaleString():"just now"}</small>
+        </>}
+        {!instagram&&<div className="smm-empty">Instagram analytics are not loaded yet. Connect the professional account and tap SYNC INSTAGRAM.</div>}
+      </section>
       <div className="smm-grid">
         <section className="smm-panel"><h2>CREATE CONTENT.</h2><p className="smm-muted">Give Claude a campaign or topic. It will prepare a reviewable Instagram draft in the selected language.</p>
           <form onSubmit={generate}>
