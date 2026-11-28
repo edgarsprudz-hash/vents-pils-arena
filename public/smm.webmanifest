@@ -1,0 +1,25 @@
+{
+  "id": "/smm",
+  "name": "VENTSPILS ARENA SMM",
+  "short_name": "VA SMM",
+  "description": "Private social media operations app for VENTSPILS ARENA.",
+  "start_url": "/smm",
+  "scope": "/smm",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#08090c",
+  "theme_color": "#08090c",
+  "icons": [
+    {
+      "src": "/organizer-icon-v2.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon-64.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    }
+  ]
+}
