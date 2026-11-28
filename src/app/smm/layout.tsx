@@ -1,0 +1,4 @@
+import type { Metadata, Viewport } from "next";
+export const metadata: Metadata = { title:"VENTSPILS ARENA SMM", description:"Private VENTSPILS ARENA social media workspace.", manifest:"/smm.webmanifest", applicationName:"VENTSPILS ARENA SMM", appleWebApp:{capable:true,title:"VA SMM",statusBarStyle:"black-translucent"}, icons:{icon:"/organizer-icon-v2.svg",apple:"/favicon-64.png"}, robots:{index:false,follow:false} };
+export const viewport: Viewport = {themeColor:"#08090c",width:"device-width",initialScale:1,maximumScale:1,userScalable:false};
+export default function SmmLayout({children}:{children:React.ReactNode}) { return children; }
